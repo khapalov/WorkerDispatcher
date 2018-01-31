@@ -1,8 +1,9 @@
 # WorkerDispatcher
 Easy to start async workers in your application
 
-How to use:
+### How to use:
 
+```csharp
 var factory = new ActionDispatcherFactory();
 
 //get and save dispatcher token
@@ -20,6 +21,6 @@ dispathcerToken.Post(new MyWorker());
 
 //stop receive new worker and wait for the rest
 dispathcerToken.Stop();
-
+```
 
 
