@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Khapalov Sergei</Authors>
+    <PackageProjectUrl>https://khapalov@bitbucket.org/khapalov/workerdispatcher</PackageProjectUrl>
+    <RepositoryUrl>https://khapalov@bitbucket.org/khapalov/workerdispatcher</RepositoryUrl>
+    <PackageTags>worker dispatcher</PackageTags>
+  </PropertyGroup>
+
+</Project>
