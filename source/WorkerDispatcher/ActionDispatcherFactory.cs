@@ -50,13 +50,13 @@ namespace WorkerDispatcher
         private async Task ProcessMessageInner(IActionInvoker actionInvoker, ActionDispatcherSettings config, CounterBlocked processCount)
         {
             var tokenSource = new CancellationTokenSource();
-
+            
             try
             {
                 processCount.Increment();
-#if DEBUG
+
                 Trace.WriteLine(String.Format("start process count = {0}", processCount.Count));
-#endif
+
                 tokenSource.CancelAfter(config.Timeout);
 
                 await ProcessMessage(actionInvoker, tokenSource.Token);
@@ -70,9 +70,8 @@ namespace WorkerDispatcher
                 processCount.Decremenet();
                 tokenSource.Dispose();
             }
-#if DEBUG
-            Trace.WriteLine(String.Format("stop process count = {0}", processCount.Count));
-#endif
+
+            Trace.WriteLine(String.Format("stop process, quantity left = {0}", processCount.Count));
         }
 
         private async Task ProcessMessage(IActionInvoker actionInvoker, CancellationToken cancellationToken)
@@ -84,13 +83,12 @@ namespace WorkerDispatcher
                 stopwatch.Stop();
 
                 if (actionResultTask.IsCanceled || actionResultTask.IsFaulted)
-                {
+                {                    
                     _handler.HandleError(actionResultTask.Exception, stopwatch.ElapsedMilliseconds, actionResultTask.IsCanceled);
                 }
                 else
                 {
                     var result = await actionResultTask;
-
                     _handler.HandleResult(result, stopwatch.ElapsedMilliseconds);                 
                 }
             });

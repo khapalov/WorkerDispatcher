@@ -13,40 +13,37 @@ namespace UnitTests
         protected Mock<IWorkerHandler> MockWorkerHandler = new Mock<IWorkerHandler>();
         protected Mock<IActionInvoker> MockActionInvoker = new Mock<IActionInvoker>();
 
-        public ActionDispatcherFactory Factory;        
+        public ActionDispatcherFactory Factory;
+
+        protected IDispatcherToken DispatcherToken;
 
         public WorkDispatcherFixture()
         {
             Factory = new ActionDispatcherFactory(MockWorkerHandler.Object);
+
+            DispatcherToken = Factory.Start(new ActionDispatcherSettings
+            {
+                Timeout = TimeSpan.FromSeconds(10)
+            });
         }
     }
 
     [TestFixture]
     public class post_some_action : WorkDispatcherFixture
     {
-        protected IDispatcherToken DispatcherToken;
-
         [SetUp]
         public void Initalize()
         {
-            MockActionInvoker.Reset();
-            MockWorkerHandler.Reset();
-
-            DispatcherToken = Factory.Start(new ActionDispatcherSettings
-            {                
-                Timeout = TimeSpan.FromSeconds(10)
-            });
-
             DispatcherToken.Post(MockActionInvoker.Object);
             DispatcherToken.Post(MockActionInvoker.Object);
-            DispatcherToken.Post(p => Task.Delay(100, p));
-
-            DispatcherToken.Stop().Wait();
+            DispatcherToken.Post(p => Task.Delay(100, p));            
         }
 
         [Test]
-        public void should_be_two_action_execute()
+        public async Task should_be_two_action_execute()
         {
+            await DispatcherToken.Stop();
+
             MockActionInvoker.Verify(p => p.Invoke(It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
     }
@@ -54,8 +51,6 @@ namespace UnitTests
     [TestFixture]
     public class worker_longer : WorkDispatcherFixture
     {
-        protected IDispatcherToken DispatcherToken;
-
         [SetUp]
         public void Initalize()
         {
@@ -71,48 +66,47 @@ namespace UnitTests
         }
 
         [Test]
-        public void should_be_cancelled_work()
+        public async Task should_be_cancelled_work()
         {
-            DispatcherToken.Stop().Wait();
+            await DispatcherToken.Stop();
+
             MockWorkerHandler.Verify(p => p.HandleError(null, It.IsAny<decimal>(), It.IsAny<bool>()), Times.Once);
         }
     }
 
     [TestFixture]
-    public class many_action_with_exception : WorkDispatcherFixture
+    public class worker_patial_succcess : WorkDispatcherFixture
     {
-        protected IDispatcherToken DispatcherToken;
-
         [SetUp]
         public void Initalize()
         {
-            MockActionInvoker.Reset();
-            MockWorkerHandler.Reset();
+            MockWorkerHandler.ResetCalls();
+            MockActionInvoker.ResetCalls();
 
             DispatcherToken = Factory.Start(new ActionDispatcherSettings
             {
-                Timeout = TimeSpan.FromSeconds(10)
+                Timeout = TimeSpan.FromSeconds(1)
             });
 
             DispatcherToken.Post(MockActionInvoker.Object);
             DispatcherToken.Post(p => throw new ArgumentException());
-            DispatcherToken.Post(p => throw new ArgumentException());
-            DispatcherToken.Post(MockActionInvoker.Object);
-
-            DispatcherToken.Stop().Wait();
+            DispatcherToken.Post(MockActionInvoker.Object);            
         }
 
         [Test]
-        public void should_be_two_action_error()
+        public async Task should_be_two_worker_from_all_success()
         {
-            MockWorkerHandler.Verify(p => p.HandleError(It.IsAny<Exception>(), It.IsAny<decimal>(), It.IsAny<bool>()), Times.Exactly(2));
-        }
+            await DispatcherToken.Stop();
 
-        [Test]
-        public void should_be_two_action_success()
-        {
             MockActionInvoker.Verify(p => p.Invoke(It.IsAny<CancellationToken>()), Times.Exactly(2));
-            MockWorkerHandler.Verify(p => p.HandleResult(It.IsAny<object>(), It.IsAny<decimal>()), Times.Exactly(2));
         }
-    }   
+
+        [Test]
+        public async Task should_be_from_all_worker_one_error()
+        {
+            await DispatcherToken.Stop();
+
+            MockWorkerHandler.Verify(p => p.HandleError(It.IsAny<Exception>(), It.IsAny<decimal>(), It.IsAny<bool>()), Times.Once);
+        }
+    }
 }

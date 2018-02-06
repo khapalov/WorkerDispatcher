@@ -31,7 +31,7 @@ namespace WorkerDispatcher
 
         public async Task<TData> ReceiveAsync()
         {
-            return await Task.Run(() => ReceiveData()).ConfigureAwait(false);
+            return await Task.Run(() => ReceiveData());
         }
 
         public void Complete()
