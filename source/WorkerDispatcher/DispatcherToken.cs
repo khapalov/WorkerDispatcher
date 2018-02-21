@@ -46,9 +46,8 @@ namespace WorkerDispatcher
 
                 do
                 {
-#if DEBUG
                     Trace.WriteLine(String.Format("Wating count process = {0}", _processCount.Count));
-#endif
+
                     if (_processCount.Count == 0) break;
 
                     await Task.Delay(1, tokenSource.Token);

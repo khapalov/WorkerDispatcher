@@ -42,11 +42,9 @@ namespace WorkerDispatcher
 
         private TData ReceiveData()
         {
-            var data = default(TData);
-
             var cancellationToken = _cancellationTokenSource.Token;
 
-            if (!_queue.TryTake(out data))
+            if (!_queue.TryTake(out TData data))
             {
                 using (var reg = cancellationToken.Register(() => { if (!_autoResetEvent.SafeWaitHandle.IsClosed) _autoResetEvent.Set(); }))
                 {

@@ -70,7 +70,7 @@ namespace UnitTests
         {
             await DispatcherToken.Stop();
 
-            MockWorkerHandler.Verify(p => p.HandleError(null, It.IsAny<decimal>(), It.IsAny<bool>()), Times.Once);
+            MockWorkerHandler.Verify(p => p.HandleError(null, It.IsAny<decimal>(), true), Times.Once);
         }
     }
 

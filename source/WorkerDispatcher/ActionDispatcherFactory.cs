@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using WorkerDispatcher.Extensions;
 
 namespace WorkerDispatcher
 {
@@ -30,68 +31,11 @@ namespace WorkerDispatcher
 
             var dispatcherToken = new DispatcherToken(processCount, queueWorker, cancellationTokenSource);
 
-            Task.Factory.StartNew(async () =>
-            {
-                var cancellationToken = cancellationTokenSource.Token;
+            var schedule = config.BuildSchedule(queueWorker, processCount, _handler);
 
-                while (!cancellationToken.IsCancellationRequested || !queueWorker.IsEmpty)
-                {
-                    var configValue = config;
-
-                    await queueWorker.ReceiveAsync()
-                        .ContinueWith(async invoker => ProcessMessageInner(await invoker, configValue, processCount), TaskContinuationOptions.OnlyOnRanToCompletion);
-                }
-
-            }, TaskCreationOptions.LongRunning);
+            schedule.Start(cancellationTokenSource.Token);
 
             return dispatcherToken;
-        }
-
-        private async Task ProcessMessageInner(IActionInvoker actionInvoker, ActionDispatcherSettings config, CounterBlocked processCount)
-        {
-            var tokenSource = new CancellationTokenSource();
-            
-            try
-            {
-                processCount.Increment();
-
-                Trace.WriteLine(String.Format("start process count = {0}", processCount.Count));
-
-                tokenSource.CancelAfter(config.Timeout);
-
-                await ProcessMessage(actionInvoker, tokenSource.Token);
-            }
-            catch (Exception ex)
-            {
-                _handler.HandleFault(ex);
-            }
-            finally
-            {
-                processCount.Decremenet();
-                tokenSource.Dispose();
-            }
-
-            Trace.WriteLine(String.Format("stop process, quantity left = {0}", processCount.Count));
-        }
-
-        private async Task ProcessMessage(IActionInvoker actionInvoker, CancellationToken cancellationToken)
-        {
-            var stopwatch = Stopwatch.StartNew();
-
-            await actionInvoker.Invoke(cancellationToken).ContinueWith(async actionResultTask =>
-            {
-                stopwatch.Stop();
-
-                if (actionResultTask.IsCanceled || actionResultTask.IsFaulted)
-                {                    
-                    _handler.HandleError(actionResultTask.Exception, stopwatch.ElapsedMilliseconds, actionResultTask.IsCanceled);
-                }
-                else
-                {
-                    var result = await actionResultTask;
-                    _handler.HandleResult(result, stopwatch.ElapsedMilliseconds);                 
-                }
-            });
         }
     }
 }
