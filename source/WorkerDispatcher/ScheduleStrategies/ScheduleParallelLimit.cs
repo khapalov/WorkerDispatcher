@@ -37,11 +37,6 @@ namespace WorkerDispatcher.ScheduleStrategies
             }, TaskCreationOptions.LongRunning);
         }
 
-        ~ScheduleParallelLimit()
-        {
-            Dispose(false);
-        }
-
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
