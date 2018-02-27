@@ -49,9 +49,9 @@ namespace WorkerDispatcher.ScheduleStrategies
             Trace.WriteLine(String.Format("stop process, quantity left = {0}", _processCount.Count));
         }
 
-        protected async Task ProcessMessage(IActionInvoker actionInvoker, CancellationToken cancellationToken)
+        protected virtual async Task ProcessMessage(IActionInvoker actionInvoker, CancellationToken cancellationToken)
         {
-            var stopwatch = Stopwatch.StartNew();
+            var stopwatch = Stopwatch.StartNew();            
 
             await actionInvoker.Invoke(cancellationToken).ContinueWith(async actionResultTask =>
             {

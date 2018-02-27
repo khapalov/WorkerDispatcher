@@ -38,9 +38,7 @@ namespace WorkerDispatcher
 
             _cancellationTokenSource.Cancel();
 
-            var tokenSource = new CancellationTokenSource();
-
-            try
+            using (var tokenSource = new CancellationTokenSource())
             {
                 tokenSource.CancelAfter(delaySeconds * 1000);
 
@@ -54,10 +52,7 @@ namespace WorkerDispatcher
 
                 } while (true);
             }
-            finally
-            {
-                tokenSource.Dispose();
-            }
+                
         }
 
         #region IDisposable Support

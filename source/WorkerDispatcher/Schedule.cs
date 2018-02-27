@@ -16,5 +16,9 @@ namespace WorkerDispatcher
         /// </summary>
         Sequenced,
 
+        /// <summary>
+        /// All worker executed as parallel with limit count
+        /// </summary>
+        ParallelLimit
     }
 }
