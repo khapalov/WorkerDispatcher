@@ -7,17 +7,17 @@ namespace WorkerDispatcher
     public enum ScheduleType
     {
         /// <summary>
-        /// All worker executed as parallel
+        /// all tasks are called in parallel
         /// </summary>
         Parallel,
 
         /// <summary>
-        /// All work is done sequentially
+        /// All tasks are called sequentially
         /// </summary>
         Sequenced,
 
         /// <summary>
-        /// All worker executed as parallel with limit count
+        /// All tasks are called in parallel with the restriction on the number of threads
         /// </summary>
         ParallelLimit
     }

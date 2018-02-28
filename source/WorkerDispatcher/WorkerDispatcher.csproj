@@ -9,11 +9,10 @@
     <PackageTags>worker dispatcher async</PackageTags>
     <Version>2.1.0</Version>
     <Description>Post async work
-supports several modes
-
-Parallel -&gt; all task call as parallel
-Sequenced -&gt; all task call as sequenced
-ParallelLimit -&gt; all worker executed as parallel with limit count</Description>
+Dispatcher support three work mode Parallel,Sequenced,ParallelLimit
+Parallel -&gt; all tasks are called in parallel
+Sequenced -&gt; all tasks are called sequentially
+ParallelLimit -&gt; all tasks are called in parallel with the restriction on the number of threads</Description>
     <RepositoryType>GitHub</RepositoryType>
     <PackageReleaseNotes>Add inline post worker t.Post(ct=&gt;Task.Delay(500, ct));</PackageReleaseNotes>
   </PropertyGroup>
