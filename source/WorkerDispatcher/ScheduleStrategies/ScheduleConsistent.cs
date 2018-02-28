@@ -6,26 +6,19 @@ namespace WorkerDispatcher.ScheduleStrategies
 {
     internal class ScheduleConsistent : ScheduleStrategiesBase
     {
-        private readonly IQueueWorker _queue;
-
         public ScheduleConsistent(IQueueWorker queue, ICounterBlocked processCount, TimeSpan timeLimit, IWorkerHandler workerHandler)
-           : base(processCount, timeLimit, workerHandler)
+           : base(queue, processCount, timeLimit, workerHandler)
         {
-            _queue = queue;
         }
 
-        public override void Start(CancellationToken cancellationToken)
+        protected override async Task StartCore(IWorkerRunner workerRunner, IQueueWorker queueWorker, CancellationToken cancellationToken)
         {
-            Task.Factory.StartNew(async () =>
+            while (!cancellationToken.IsCancellationRequested || !queueWorker.IsEmpty)
             {
-                while (!cancellationToken.IsCancellationRequested || !_queue.IsEmpty)
-                {
-                    var invoker = await _queue.ReceiveAsync();
+                var invoker = await queueWorker.ReceiveAsync();
 
-                    await ExcecuteInvoker(invoker);                        
-                }
-
-            }, TaskCreationOptions.LongRunning);
+                await workerRunner.ExcecuteInvoker(invoker);
+            }
         }
     }
 }

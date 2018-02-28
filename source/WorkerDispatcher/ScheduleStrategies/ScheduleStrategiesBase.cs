@@ -7,66 +7,81 @@ using System.Threading.Tasks;
 
 namespace WorkerDispatcher.ScheduleStrategies
 {
-    internal abstract class ScheduleStrategiesBase : IScheduleStrategies
+    internal abstract class ScheduleStrategiesBase : IScheduleStrategies, IDisposable
     {
         private readonly ICounterBlocked _processCount;
         private readonly TimeSpan _timeLimit;
         private readonly IWorkerHandler _handler;
+        private readonly IQueueWorker _queueWorker;
+        private readonly IWorkerRunner _workerRunner;
 
-        public ScheduleStrategiesBase(ICounterBlocked processCount, TimeSpan timeLimit, IWorkerHandler workerHandler)
+        public ScheduleStrategiesBase(IQueueWorker queueWorker, ICounterBlocked processCount, TimeSpan timeLimit, IWorkerHandler workerHandler)
         {
             _processCount = processCount;
             _timeLimit = timeLimit;
             _handler = workerHandler;
+            _queueWorker = queueWorker;
+            _workerRunner = CreateWorkerRunner(_processCount, workerHandler, _timeLimit);
         }
 
-        public abstract void Start(CancellationToken cancellationToken);
-
-        protected async Task ExcecuteInvoker(IActionInvoker actionInvoker)
+        protected virtual IWorkerRunner CreateWorkerRunner(ICounterBlocked counterBlocked, IWorkerHandler workerHandler, TimeSpan timeLimit)
         {
-            var tokenSource = new CancellationTokenSource();
-
-            try
-            {
-                _processCount.Increment();
-
-                Trace.WriteLine(String.Format("start process count = {0}", _processCount.Count));
-
-                tokenSource.CancelAfter(_timeLimit);
-
-                await ProcessMessage(actionInvoker, tokenSource.Token);
-            }
-            catch (Exception ex)
-            {
-                _handler.HandleFault(ex);
-            }
-            finally
-            {
-                _processCount.Decremenet();
-                tokenSource.Dispose();
-            }
-
-            Trace.WriteLine(String.Format("stop process, quantity left = {0}", _processCount.Count));
+            return new DefaultWorkerRunner(_processCount, workerHandler, timeLimit);
         }
 
-        protected virtual async Task ProcessMessage(IActionInvoker actionInvoker, CancellationToken cancellationToken)
+        public void Start(CancellationToken cancellationToken)
         {
-            var stopwatch = Stopwatch.StartNew();            
-
-            await actionInvoker.Invoke(cancellationToken).ContinueWith(async actionResultTask =>
+            Task.Factory.StartNew(async () =>
             {
-                stopwatch.Stop();
-
-                if (actionResultTask.IsCanceled || actionResultTask.IsFaulted)
+                try
                 {
-                    _handler.HandleError(actionResultTask.Exception, stopwatch.ElapsedMilliseconds, actionResultTask.IsCanceled);
+                    await StartCore(_workerRunner, _queueWorker, cancellationToken);
                 }
-                else
+                catch (Exception ex)
                 {
-                    var result = await actionResultTask;
-                    _handler.HandleResult(result, stopwatch.ElapsedMilliseconds);
+                    _handler.HandleFault(ex);
                 }
-            });
+            }, TaskCreationOptions.LongRunning);
         }
+
+        protected abstract Task StartCore(IWorkerRunner workerRunner, IQueueWorker queueWorker, CancellationToken cancellationToken);             
+
+#region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    if (_queueWorker != null)
+                    {
+                        _queueWorker.Dispose();
+                    }
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~ScheduleStrategiesBase() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+#endregion
     }
 }

@@ -9,25 +9,18 @@ namespace WorkerDispatcher.ScheduleStrategies
 {
     internal class ScheduleParallel : ScheduleStrategiesBase
     {
-        private readonly IQueueWorker _queue;
-
         public ScheduleParallel(IQueueWorker queue, ICounterBlocked processCount, TimeSpan timeLimit, IWorkerHandler workerHandler)
-            : base(processCount, timeLimit, workerHandler)
+            : base(queue, processCount, timeLimit, workerHandler)
         {
-            _queue = queue;
         }
 
-        public override void Start(CancellationToken cancellationToken)
+        protected override async Task StartCore(IWorkerRunner workerRunner, IQueueWorker queueWorker, CancellationToken cancellationToken)
         {
-            Task.Factory.StartNew(async () =>
+            while (!cancellationToken.IsCancellationRequested || !queueWorker.IsEmpty)
             {
-                while (!cancellationToken.IsCancellationRequested || !_queue.IsEmpty)
-                {
-                    await _queue.ReceiveAsync()
-                        .ContinueWith(async invoker => ExcecuteInvoker(await invoker), TaskContinuationOptions.OnlyOnRanToCompletion);
-                }
-
-            }, TaskCreationOptions.LongRunning);
+                await queueWorker.ReceiveAsync()
+                    .ContinueWith(async invoker => workerRunner.ExcecuteInvoker(await invoker), TaskContinuationOptions.OnlyOnRanToCompletion);
+            }
         }       
     }
 }

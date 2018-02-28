@@ -44,8 +44,9 @@ namespace WorkerDispatcher
 
                 do
                 {
+#if DEBUG
                     Trace.WriteLine(String.Format("Wating count process = {0}", _processCount.Count));
-
+#endif
                     if (_processCount.Count == 0) break;
 
                     await Task.Delay(1, tokenSource.Token);
@@ -55,7 +56,7 @@ namespace WorkerDispatcher
                 
         }
 
-        #region IDisposable Support
+#region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -86,6 +87,6 @@ namespace WorkerDispatcher
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
-        #endregion
+#endregion
     }
 }
