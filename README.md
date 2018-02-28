@@ -2,10 +2,10 @@
 Easy to start async workers in your application
 
 ## How to use:
-Dispatcher support three work mode Parallel,Sequenced,ParallelLimit
-Parallel -> all tasks are called in parallel
-Sequenced -> all tasks are called sequentially,
-ParallelLimit -> all tasks are called in parallel with the restriction on the number of threads
+Dispatcher support three work mode Parallel,Sequenced,ParallelLimit<br/>
+Parallel -> all tasks are called in parallel<br/>
+Sequenced -> all tasks are called sequentially<br/>
+ParallelLimit -> all tasks are called in parallel with the restriction on the number of threads<br/>
 
 ## Default dispatcher mode, Parallel
 
