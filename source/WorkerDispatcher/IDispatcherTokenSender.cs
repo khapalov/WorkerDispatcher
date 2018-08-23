@@ -9,6 +9,7 @@ namespace WorkerDispatcher
     public interface IDispatcherTokenSender
     {
 		int ProcessCount { get; }
+		int ProcessLimit { get; }
 
 		void Post(Func<CancellationToken, Task> fn);
 		void Post(IActionInvoker actionInvoker);

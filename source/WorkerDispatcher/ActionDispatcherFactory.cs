@@ -24,7 +24,7 @@ namespace WorkerDispatcher
 
             var cancellationTokenSource = new CancellationTokenSource();
 
-            var dispatcherToken = new DispatcherToken(processCount, queueWorker, cancellationTokenSource);
+			var dispatcherToken = new DispatcherToken(processCount, queueWorker, config, cancellationTokenSource);
 
             var schedule = config.BuildSchedule(queueWorker, processCount, _handler);
 

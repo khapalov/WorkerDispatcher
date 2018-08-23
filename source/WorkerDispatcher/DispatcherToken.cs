@@ -12,21 +12,35 @@ namespace WorkerDispatcher
         private readonly IQueueWorkerWriter _queueWorker;
         private readonly ICounterBlockedReader _processCount;
         private readonly CancellationTokenSource _cancellationTokenSource;
+		private readonly ActionDispatcherSettings _actionDispatcherSettings;
 
-        internal DispatcherToken(ICounterBlockedReader counterProcess, IQueueWorkerWriter queueWorker, CancellationTokenSource cancellationTokenSource)
+		internal DispatcherToken(ICounterBlockedReader counterProcess, 
+			IQueueWorkerWriter queueWorker,
+			ActionDispatcherSettings actionDispatcherSettings,
+			CancellationTokenSource cancellationTokenSource)
         {
             _processCount = counterProcess;
 
             _queueWorker = queueWorker;
 
             _cancellationTokenSource = cancellationTokenSource;
-        }
+
+			_actionDispatcherSettings = actionDispatcherSettings;
+		}
 
 		public int ProcessCount
 		{
 			get
 			{
 				return _processCount.Count;
+			}
+		}
+
+		public int ProcessLimit
+		{
+			get
+			{
+				return _actionDispatcherSettings.PrefetchCount;
 			}
 		}
 
