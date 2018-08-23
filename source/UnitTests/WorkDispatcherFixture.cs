@@ -109,4 +109,26 @@ namespace UnitTests
             MockWorkerHandler.Verify(p => p.HandleError(It.IsAny<Exception>(), It.IsAny<decimal>(), It.IsAny<bool>()), Times.Once);
         }
     }
+
+	[TestFixture]
+	public class post_data_success : WorkDispatcherFixture
+	{
+		const string ExpectData = "SomeData";
+
+		protected Mock<IActionInvoker<string>> MockActionDataInvoker = new Mock<IActionInvoker<string>>();
+
+		[SetUp]
+		public void Initalize()
+		{
+			DispatcherToken.Post(MockActionDataInvoker.Object, ExpectData);
+		}
+
+		[Test]
+		public async Task should_action_execute()
+		{
+			await DispatcherToken.Stop();
+
+			MockActionDataInvoker.Verify(p => p.Invoke(It.Is<string>(s => s == ExpectData),	It.IsAny<CancellationToken>()), Times.Exactly(1));
+		}
+	}
 }

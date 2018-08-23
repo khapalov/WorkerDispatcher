@@ -32,7 +32,12 @@ namespace WorkerDispatcher
             _queueWorker.Post(new InternalWorker(fn));
         }
 
-        public async Task Stop(int delaySeconds = 60)
+		public void Post<TData>(IActionInvoker<TData> actionInvoker, TData data)
+		{
+			_queueWorker.Post(new InternalWorkerValue<TData>(actionInvoker, data));
+		}
+
+		public async Task Stop(int delaySeconds = 60)
         {
             _queueWorker.Complete();
 

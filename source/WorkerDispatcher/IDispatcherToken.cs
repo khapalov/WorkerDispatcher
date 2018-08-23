@@ -8,6 +8,7 @@ namespace WorkerDispatcher
     {
         void Post(Func<CancellationToken, Task> fn);
         void Post(IActionInvoker actionInvoker);
-        Task Stop(int delaySeconds = 30);
+		void Post<TData>(IActionInvoker<TData> actionInvoker, TData data);
+		Task Stop(int delaySeconds = 30);
     }
 }

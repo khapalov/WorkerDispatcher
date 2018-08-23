@@ -7,14 +7,15 @@
     <PackageProjectUrl>https://github.com/khapalov/WorkerDispatcher</PackageProjectUrl>
     <RepositoryUrl>https://github.com/khapalov/WorkerDispatcher</RepositoryUrl>
     <PackageTags>worker dispatcher async</PackageTags>
-    <Version>2.1.0</Version>
+    <Version>2.2.0</Version>
     <Description>Post async work
 Dispatcher support three work mode Parallel,Sequenced,ParallelLimit
 Parallel -&gt; all tasks are called in parallel
 Sequenced -&gt; all tasks are called sequentially
 ParallelLimit -&gt; all tasks are called in parallel with the restriction on the number of threads</Description>
     <RepositoryType>GitHub</RepositoryType>
-    <PackageReleaseNotes>Add inline post worker t.Post(ct=&gt;Task.Delay(500, ct));</PackageReleaseNotes>
+    <PackageReleaseNotes>Add inline post worker t.Post(ct=&gt;Task.Delay(500, ct));
+Added typed invoke</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

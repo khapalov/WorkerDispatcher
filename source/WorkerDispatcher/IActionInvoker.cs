@@ -10,4 +10,9 @@ namespace WorkerDispatcher
     {
         Task<object> Invoke(CancellationToken token);
     }
+
+	public interface IActionInvoker<TData>
+	{
+		Task<object> Invoke(TData data, CancellationToken token);
+	}
 }
