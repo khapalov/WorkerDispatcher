@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WorkerDispatcher
 {
-	public class InternalWorkerValue<TData> : IActionInvoker
+	internal class InternalWorkerValue<TData> : IActionInvoker
 	{
 		private readonly TData _data;
 		private readonly IActionInvoker<TData> _actionInvoker;

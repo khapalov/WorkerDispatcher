@@ -31,9 +31,17 @@ namespace WorkerDispatcher
 #if DEBUG
                 Trace.WriteLine(String.Format("start process count = {0}", _counterBlocked.Count));
 #endif
-                tokenSource.CancelAfter(_timeLimit);
 
-                await ProcessMessage(actionInvoker, tokenSource.Token);
+				if (actionInvoker is IActionInvokerLifetime invokerTimeLimit)
+				{
+					tokenSource.CancelAfter(invokerTimeLimit.Lifetime);
+				}
+				else
+				{
+					tokenSource.CancelAfter(_timeLimit);
+				}
+				
+				await ProcessMessage(actionInvoker, tokenSource.Token);
             }
             catch (Exception ex)
             {

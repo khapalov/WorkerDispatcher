@@ -111,6 +111,24 @@ namespace UnitTests
     }
 
 	[TestFixture]
+	public class post_null_action : WorkDispatcherFixture
+	{
+		[SetUp]
+		public void Initalize()
+		{
+			DispatcherToken.Post(default(IActionInvoker));
+		}
+
+		[Test]
+		public async Task should_be_fault_execute()
+		{
+			await DispatcherToken.Stop();
+
+			MockWorkerHandler.Verify(p => p.HandleFault(It.IsAny<Exception>()));
+		}
+	}
+
+	[TestFixture]
 	public class post_data_success : WorkDispatcherFixture
 	{
 		const string ExpectData = "SomeData";

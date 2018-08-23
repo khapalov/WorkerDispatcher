@@ -24,17 +24,42 @@ namespace WorkerDispatcher
 
         public void Post(IActionInvoker actionInvoker)
         {
+			if (actionInvoker == null)
+			{
+				return;
+			}
+
             _queueWorker.Post(actionInvoker);
         }
 
         public void Post(Func<CancellationToken, Task> fn)
         {
-            _queueWorker.Post(new InternalWorker(fn));
+			if (fn == null)
+			{
+				return;
+			}
+
+			_queueWorker.Post(new InternalWorker(fn));
         }
 
 		public void Post<TData>(IActionInvoker<TData> actionInvoker, TData data)
 		{
+			if (actionInvoker == null)
+			{
+				return;
+			}
+
 			_queueWorker.Post(new InternalWorkerValue<TData>(actionInvoker, data));
+		}
+
+		public void Post<TData>(IActionInvoker<TData> actionInvoker, TData data, TimeSpan lifetime)
+		{
+			if (actionInvoker == null)
+			{
+				return;
+			}
+
+			_queueWorker.Post(new InternalWorkerValueLifetime<TData>(actionInvoker, data, lifetime));
 		}
 
 		public async Task Stop(int delaySeconds = 60)
@@ -92,6 +117,6 @@ namespace WorkerDispatcher
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
-#endregion
-    }
+		#endregion
+	}
 }
