@@ -22,6 +22,14 @@ namespace WorkerDispatcher
             _cancellationTokenSource = cancellationTokenSource;
         }
 
+		public int ProcessCount
+		{
+			get
+			{
+				return _processCount.Count;
+			}
+		}
+
         public void Post(IActionInvoker actionInvoker)
         {
 			if (actionInvoker == null)
