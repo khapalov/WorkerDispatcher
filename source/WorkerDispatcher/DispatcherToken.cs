@@ -12,27 +12,79 @@ namespace WorkerDispatcher
         private readonly IQueueWorkerWriter _queueWorker;
         private readonly ICounterBlockedReader _processCount;
         private readonly CancellationTokenSource _cancellationTokenSource;
+		private readonly ActionDispatcherSettings _actionDispatcherSettings;
 
-        internal DispatcherToken(ICounterBlockedReader counterProcess, IQueueWorkerWriter queueWorker, CancellationTokenSource cancellationTokenSource)
+		internal DispatcherToken(ICounterBlockedReader counterProcess, 
+			IQueueWorkerWriter queueWorker,
+			ActionDispatcherSettings actionDispatcherSettings,
+			CancellationTokenSource cancellationTokenSource)
         {
             _processCount = counterProcess;
 
             _queueWorker = queueWorker;
 
             _cancellationTokenSource = cancellationTokenSource;
-        }
+
+			_actionDispatcherSettings = actionDispatcherSettings;
+		}
+
+		public int ProcessCount
+		{
+			get
+			{
+				return _processCount.Count;
+			}
+		}
+
+		public int ProcessLimit
+		{
+			get
+			{
+				return _actionDispatcherSettings.PrefetchCount;
+			}
+		}
 
         public void Post(IActionInvoker actionInvoker)
         {
+			if (actionInvoker == null)
+			{
+				throw new ArgumentNullException(nameof(actionInvoker));
+			}
+
             _queueWorker.Post(actionInvoker);
         }
 
         public void Post(Func<CancellationToken, Task> fn)
         {
-            _queueWorker.Post(new InternalWorker(fn));
+			if (fn == null)
+			{
+				throw new ArgumentNullException(nameof(fn));
+			}
+
+			_queueWorker.Post(new InternalWorker(fn));
         }
 
-        public async Task Stop(int delaySeconds = 60)
+		public void Post<TData>(IActionInvoker<TData> actionInvoker, TData data)
+		{
+			if (actionInvoker == null)
+			{
+				throw new ArgumentNullException(nameof(actionInvoker));
+			}
+
+			_queueWorker.Post(new InternalWorkerValue<TData>(actionInvoker, data));
+		}
+
+		public void Post<TData>(IActionInvoker<TData> actionInvoker, TData data, TimeSpan lifetime)
+		{
+			if (actionInvoker == null)
+			{
+				throw new ArgumentNullException(nameof(actionInvoker));
+			}
+
+			_queueWorker.Post(new InternalWorkerValueLifetime<TData>(actionInvoker, data, lifetime));
+		}
+
+		public async Task Stop(int delaySeconds = 60)
         {
             _queueWorker.Complete();
 
@@ -87,6 +139,6 @@ namespace WorkerDispatcher
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
-#endregion
-    }
+		#endregion
+	}
 }

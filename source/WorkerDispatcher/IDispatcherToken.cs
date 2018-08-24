@@ -4,10 +4,8 @@ using System.Threading.Tasks;
 
 namespace WorkerDispatcher
 {
-    public interface IDispatcherToken
-    {
-        void Post(Func<CancellationToken, Task> fn);
-        void Post(IActionInvoker actionInvoker);
-        Task Stop(int delaySeconds = 30);
+    public interface IDispatcherToken : IDispatcherTokenSender
+    {		
+		Task Stop(int delaySeconds = 30);
     }
 }
