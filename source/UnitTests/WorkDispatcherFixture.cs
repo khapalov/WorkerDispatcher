@@ -7,116 +7,116 @@ using WorkerDispatcher;
 
 namespace UnitTests
 {
-    [TestFixture]
-    public abstract class WorkDispatcherFixture
-    {
-        protected Mock<IWorkerHandler> MockWorkerHandler = new Mock<IWorkerHandler>();
-        protected Mock<IActionInvoker> MockActionInvoker = new Mock<IActionInvoker>();
+	[TestFixture]
+	public abstract class WorkDispatcherFixture
+	{
+		protected Mock<IWorkerHandler> MockWorkerHandler = new Mock<IWorkerHandler>();
+		protected Mock<IActionInvoker> MockActionInvoker = new Mock<IActionInvoker>();
 
-        public ActionDispatcherFactory Factory;
+		public ActionDispatcherFactory Factory;
 
-        protected IDispatcherToken DispatcherToken;
+		protected IDispatcherToken DispatcherToken;
 
-        public WorkDispatcherFixture()
-        {
-            Factory = new ActionDispatcherFactory(MockWorkerHandler.Object);
+		public WorkDispatcherFixture()
+		{
+			Factory = new ActionDispatcherFactory(MockWorkerHandler.Object);
 
-            DispatcherToken = Factory.Start(new ActionDispatcherSettings
-            {
-                Timeout = TimeSpan.FromSeconds(10)
-            });
-        }
-    }
+			DispatcherToken = Factory.Start(new ActionDispatcherSettings
+			{
+				Timeout = TimeSpan.FromSeconds(10)
+			});
+		}
+	}
 
-    [TestFixture]
-    public class post_some_action : WorkDispatcherFixture
-    {
-        [SetUp]
-        public void Initalize()
-        {
-            DispatcherToken.Post(MockActionInvoker.Object);
-            DispatcherToken.Post(MockActionInvoker.Object);
-            DispatcherToken.Post(p => Task.Delay(100, p));            
-        }
+	[TestFixture]
+	public class post_some_action : WorkDispatcherFixture
+	{
+		[SetUp]
+		public void Initalize()
+		{
+			DispatcherToken.Post(MockActionInvoker.Object);
+			DispatcherToken.Post(MockActionInvoker.Object);
+			DispatcherToken.Post(p => Task.Delay(100, p));
+		}
 
-        [Test]
-        public async Task should_be_two_action_execute()
-        {
-            await DispatcherToken.Stop();
+		[Test]
+		public async Task should_be_two_action_execute()
+		{
+			await DispatcherToken.Stop();
 
-            MockActionInvoker.Verify(p => p.Invoke(It.IsAny<CancellationToken>()), Times.Exactly(2));
-        }
-    }
+			MockActionInvoker.Verify(p => p.Invoke(It.IsAny<CancellationToken>()), Times.Exactly(2));
+		}
+	}
 
-    [TestFixture]
-    public class worker_longer : WorkDispatcherFixture
-    {
-        [SetUp]
-        public void Initalize()
-        {
-            MockActionInvoker.Reset();
-            MockWorkerHandler.Reset();
+	[TestFixture]
+	public class worker_longer : WorkDispatcherFixture
+	{
+		[SetUp]
+		public void Initalize()
+		{
+			MockActionInvoker.Reset();
+			MockWorkerHandler.Reset();
 
-            DispatcherToken = Factory.Start(new ActionDispatcherSettings
-            {
-                Timeout = TimeSpan.FromSeconds(1)
-            });
-            
-            DispatcherToken.Post(t => Task.Delay(10000, t));            
-        }
+			DispatcherToken = Factory.Start(new ActionDispatcherSettings
+			{
+				Timeout = TimeSpan.FromSeconds(1)
+			});
 
-        [Test]
-        public async Task should_be_cancelled_work()
-        {
-            await DispatcherToken.Stop();
+			DispatcherToken.Post(t => Task.Delay(10000, t));
+		}
 
-            MockWorkerHandler.Verify(p => p.HandleError(null, It.IsAny<decimal>(), true), Times.Once);
-        }
-    }
+		[Test]
+		public async Task should_be_cancelled_work()
+		{
+			await DispatcherToken.Stop();
 
-    [TestFixture]
-    public class worker_patial_succcess : WorkDispatcherFixture
-    {
-        [SetUp]
-        public void Initalize()
-        {
-            MockWorkerHandler.ResetCalls();
-            MockActionInvoker.ResetCalls();
+			MockWorkerHandler.Verify(p => p.HandleError(null, It.IsAny<decimal>(), true), Times.Once);
+		}
+	}
 
-            DispatcherToken = Factory.Start(new ActionDispatcherSettings
-            {
-                Timeout = TimeSpan.FromSeconds(1)
-            });
+	[TestFixture]
+	public class worker_patial_succcess : WorkDispatcherFixture
+	{
+		[SetUp]
+		public void Initalize()
+		{
+			MockWorkerHandler.ResetCalls();
+			MockActionInvoker.ResetCalls();
 
-            DispatcherToken.Post(MockActionInvoker.Object);
-            DispatcherToken.Post(p => throw new ArgumentException());
-            DispatcherToken.Post(MockActionInvoker.Object);            
-        }
+			DispatcherToken = Factory.Start(new ActionDispatcherSettings
+			{
+				Timeout = TimeSpan.FromSeconds(1)
+			});
 
-        [Test]
-        public async Task should_be_two_worker_from_all_success()
-        {
-            await DispatcherToken.Stop();
+			DispatcherToken.Post(MockActionInvoker.Object);
+			DispatcherToken.Post(p => throw new ArgumentException());
+			DispatcherToken.Post(MockActionInvoker.Object);
+		}
 
-            MockActionInvoker.Verify(p => p.Invoke(It.IsAny<CancellationToken>()), Times.Exactly(2));
-        }
+		[Test]
+		public async Task should_be_two_worker_from_all_success()
+		{
+			await DispatcherToken.Stop();
 
-        [Test]
-        public async Task should_be_from_all_worker_one_error()
-        {
-            await DispatcherToken.Stop();
+			MockActionInvoker.Verify(p => p.Invoke(It.IsAny<CancellationToken>()), Times.Exactly(2));
+		}
 
-            MockWorkerHandler.Verify(p => p.HandleError(It.IsAny<Exception>(), It.IsAny<decimal>(), It.IsAny<bool>()), Times.Once);
-        }
-    }
+		[Test]
+		public async Task should_be_from_all_worker_one_error()
+		{
+			await DispatcherToken.Stop();
+
+			MockWorkerHandler.Verify(p => p.HandleError(It.IsAny<Exception>(), It.IsAny<decimal>(), It.IsAny<bool>()), Times.Once);
+		}
+	}
 
 	[TestFixture]
 	public class post_null_action : WorkDispatcherFixture
 	{
 		[Test]
 		public void should_be_fault_execute()
-		{			
-			Assert.Throws<ArgumentNullException>(() => DispatcherToken.Post(default(IActionInvoker)));			
+		{
+			Assert.Throws<ArgumentNullException>(() => DispatcherToken.Post(default(IActionInvoker)));
 		}
 
 		[Test]
@@ -128,7 +128,7 @@ namespace UnitTests
 		[Test]
 		public void should_be_fn_fault_execute()
 		{
-			Assert.Throws<ArgumentNullException>(() => DispatcherToken.Post(default(Func<CancellationToken,Task>)));
+			Assert.Throws<ArgumentNullException>(() => DispatcherToken.Post(default(Func<CancellationToken, Task>)));
 		}
 	}
 
@@ -150,7 +150,7 @@ namespace UnitTests
 		{
 			await DispatcherToken.Stop();
 
-			MockActionDataInvoker.Verify(p => p.Invoke(It.Is<string>(s => s == ExpectData),	It.IsAny<CancellationToken>()), Times.Exactly(1));
+			MockActionDataInvoker.Verify(p => p.Invoke(It.Is<string>(s => s == ExpectData), It.IsAny<CancellationToken>()), Times.Exactly(1));
 		}
 	}
 }
