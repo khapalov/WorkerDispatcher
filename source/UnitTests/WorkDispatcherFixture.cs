@@ -124,6 +124,12 @@ namespace UnitTests
 		{
 			Assert.Throws<ArgumentNullException>(() => DispatcherToken.Post(default(IActionInvoker<object>), default(object)));
 		}
+
+		[Test]
+		public void should_be_fn_fault_execute()
+		{
+			Assert.Throws<ArgumentNullException>(() => DispatcherToken.Post(default(Func<CancellationToken,Task>)));
+		}
 	}
 
 	[TestFixture]
