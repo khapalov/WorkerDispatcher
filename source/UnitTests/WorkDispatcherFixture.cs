@@ -113,18 +113,16 @@ namespace UnitTests
 	[TestFixture]
 	public class post_null_action : WorkDispatcherFixture
 	{
-		[SetUp]
-		public void Initalize()
-		{
-			DispatcherToken.Post(default(IActionInvoker));
+		[Test]
+		public void should_be_fault_execute()
+		{			
+			Assert.Throws<ArgumentNullException>(() => DispatcherToken.Post(default(IActionInvoker)));			
 		}
 
 		[Test]
-		public async Task should_be_fault_execute()
+		public void should_be_data_fault_execute()
 		{
-			await DispatcherToken.Stop();
-
-			MockWorkerHandler.Verify(p => p.HandleFault(It.IsAny<Exception>()));
+			Assert.Throws<ArgumentNullException>(() => DispatcherToken.Post(default(IActionInvoker<object>), default(object)));
 		}
 	}
 

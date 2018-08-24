@@ -48,7 +48,7 @@ namespace WorkerDispatcher
         {
 			if (actionInvoker == null)
 			{
-				return;
+				throw new ArgumentNullException(nameof(actionInvoker));
 			}
 
             _queueWorker.Post(actionInvoker);
@@ -58,7 +58,7 @@ namespace WorkerDispatcher
         {
 			if (fn == null)
 			{
-				return;
+				throw new ArgumentNullException(nameof(fn));
 			}
 
 			_queueWorker.Post(new InternalWorker(fn));
@@ -68,7 +68,7 @@ namespace WorkerDispatcher
 		{
 			if (actionInvoker == null)
 			{
-				return;
+				throw new ArgumentNullException(nameof(actionInvoker));
 			}
 
 			_queueWorker.Post(new InternalWorkerValue<TData>(actionInvoker, data));
@@ -78,7 +78,7 @@ namespace WorkerDispatcher
 		{
 			if (actionInvoker == null)
 			{
-				return;
+				throw new ArgumentNullException(nameof(actionInvoker));
 			}
 
 			_queueWorker.Post(new InternalWorkerValueLifetime<TData>(actionInvoker, data, lifetime));
