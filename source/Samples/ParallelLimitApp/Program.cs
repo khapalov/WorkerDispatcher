@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using WorkerDispatcher;
 
@@ -10,7 +11,7 @@ namespace Samples
 
 		static async Task MainAsync(string[] args)
 		{
-			for (int i = 0; i < 10000; i++)
+			for (int i = 0; i < 1000; i++)
 			{
 				DisaptcherToken.Post(async ct => { await Task.Delay(1500, ct); });
 			}
@@ -25,7 +26,7 @@ namespace Samples
 				} while (true);
 			});
 
-			await Task.Delay(1000);
+			await Task.Delay(2000);
 
 			DisaptcherToken.WaitComplete(120);
 		}
@@ -34,16 +35,21 @@ namespace Samples
 		{
 			var factory = new ActionDispatcherFactory();
 
+			var stopwatch = new Stopwatch();
+			stopwatch.Start();
+
 			DisaptcherToken = factory.Start(new ActionDispatcherSettings
 			{
-				PrefetchCount = 1000,
+				PrefetchCount = 100,
 				Schedule = ScheduleType.ParallelLimit,
 				Timeout = TimeSpan.FromSeconds(60)
 			});
 
 			MainAsync(null).Wait();
 
-			Console.WriteLine($"STOP queue count: {DisaptcherToken.QueueProcessCount}, current count: {DisaptcherToken.ProcessCount}");
+			stopwatch.Stop();
+
+			Console.WriteLine($"STOP {stopwatch.Elapsed.TotalSeconds} queue count: {DisaptcherToken.QueueProcessCount}, current count: {DisaptcherToken.ProcessCount}");			
 		}
 	}
 }

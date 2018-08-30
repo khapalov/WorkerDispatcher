@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+﻿//#define TRACE_STOP
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -107,18 +105,31 @@ namespace WorkerDispatcher
 
 			_cancellationTokenSource.Cancel();
 
-			var timeout = timeoutSeconds * 1000;
+			var timeout = new TimeSpan(0, 0, timeoutSeconds);
 
-			_queueWorker.WaitCompleted(timeout);
+			var limitTime = new TimeSpan(DateTime.Now.Add(timeout).Ticks);
 
-			//Debug.WriteLine("queue completed");
+			_queueWorker.WaitCompleted((int)timeout.TotalMilliseconds);
 
-			_processCount.Wait(timeout);
+#if TRACE_STOP
+			Console.WriteLine("queue completed");
+#endif
+			var currentTime = new TimeSpan(DateTime.Now.Ticks);
+			var delta = limitTime - currentTime;
 
-			//Debug.WriteLine("process completed");
+			if (delta > TimeSpan.Zero)
+			{
+#if TRACE_STOP
+				Console.WriteLine($"stop process with {(int)delta.TotalMilliseconds}, sec: {(int)delta.TotalSeconds}");
+#endif
+				_processCount.Wait((int)delta.TotalMilliseconds);
+#if TRACE_STOP
+				Console.WriteLine("process completed");
+#endif
+			}
 		}
 
-		#region IDisposable Support
+#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -151,6 +162,6 @@ namespace WorkerDispatcher
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
-		#endregion
+#endregion
 	}
 }
