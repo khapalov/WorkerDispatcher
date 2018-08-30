@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerDispatcher", "WorkerD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\UnitTests.csproj", "{9796E9CB-C960-4017-8EC6-CA5731FE9F01}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{3F425DC2-3B24-412F-8722-45C68CCE17BD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{FCF8F88C-9446-46DD-884F-1B7DEAAE06B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParallelLimitApp", "Samples\ParallelLimitApp\ParallelLimitApp.csproj", "{1C64C346-E121-49E0-B89E-E47771C1D5BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,13 +25,16 @@ Global
 		{9796E9CB-C960-4017-8EC6-CA5731FE9F01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9796E9CB-C960-4017-8EC6-CA5731FE9F01}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9796E9CB-C960-4017-8EC6-CA5731FE9F01}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3F425DC2-3B24-412F-8722-45C68CCE17BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3F425DC2-3B24-412F-8722-45C68CCE17BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3F425DC2-3B24-412F-8722-45C68CCE17BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3F425DC2-3B24-412F-8722-45C68CCE17BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C64C346-E121-49E0-B89E-E47771C1D5BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C64C346-E121-49E0-B89E-E47771C1D5BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C64C346-E121-49E0-B89E-E47771C1D5BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C64C346-E121-49E0-B89E-E47771C1D5BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1C64C346-E121-49E0-B89E-E47771C1D5BC} = {FCF8F88C-9446-46DD-884F-1B7DEAAE06B3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3BC36550-9341-47B2-A6B9-75FDA32D979B}

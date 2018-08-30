@@ -10,11 +10,9 @@ namespace Samples
 
 		static async Task MainAsync(string[] args)
 		{
-			for (int i = 0; i < 20; i++)
+			for (int i = 0; i < 10000; i++)
 			{
-				var a = i;
-
-				DisaptcherToken.Post(async ct => { await Task.Delay(3000, ct); Console.WriteLine(a); });
+				DisaptcherToken.Post(async ct => { await Task.Delay(1500, ct); });
 			}
 
 			var t = Task.Run(async () =>
@@ -29,7 +27,7 @@ namespace Samples
 
 			await Task.Delay(1000);
 
-			DisaptcherToken.WaitComplete(50);
+			DisaptcherToken.WaitComplete(120);
 		}
 
 		static void Main(string[] args)
@@ -38,14 +36,14 @@ namespace Samples
 
 			DisaptcherToken = factory.Start(new ActionDispatcherSettings
 			{
-				PrefetchCount = 5,
-				Schedule = ScheduleType.Parallel,
+				PrefetchCount = 1000,
+				Schedule = ScheduleType.ParallelLimit,
 				Timeout = TimeSpan.FromSeconds(60)
 			});
 
 			MainAsync(null).Wait();
 
-			Console.WriteLine("stop");
+			Console.WriteLine($"STOP queue count: {DisaptcherToken.QueueProcessCount}, current count: {DisaptcherToken.ProcessCount}");
 		}
 	}
 }

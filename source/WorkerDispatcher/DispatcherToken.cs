@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+
 namespace WorkerDispatcher
 {
     public class DispatcherToken : IDisposable, IDispatcherToken
@@ -110,14 +111,14 @@ namespace WorkerDispatcher
 
 			_queueWorker.WaitCompleted(timeout);
 
-			//Console.WriteLine("queue completed");
+			//Debug.WriteLine("queue completed");
 
 			_processCount.Wait(timeout);
 
-			//Console.WriteLine("process completed");
+			//Debug.WriteLine("process completed");
 		}
 
-#region IDisposable Support
+		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)

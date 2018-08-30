@@ -26,12 +26,9 @@ namespace WorkerDispatcher
             Interlocked.Decrement(ref _count);
 			if (_stop && _count == 0)
 			{
-				if (_state.SafeWaitHandle != null && !_state.SafeWaitHandle.IsClosed)
-				{
-					_state.Set();
-				}
+				SetCompleted();
 			}
-        }
+		}
 
 		public void Wait(int millisecondsTimeout)
 		{
@@ -39,10 +36,18 @@ namespace WorkerDispatcher
 
 			if (_count == 0)
 			{
-				_state.Set();
+				SetCompleted();
 			}
 
 			_state.WaitOne(millisecondsTimeout);
+		}
+
+		private void SetCompleted()
+		{
+			if (_state.SafeWaitHandle != null && !_state.SafeWaitHandle.IsClosed)
+			{
+				_state.Set();
+			}
 		}
 
 		#region IDisposable Support

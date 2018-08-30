@@ -32,26 +32,18 @@ namespace WorkerDispatcher
 
 		public async Task<IActionInvoker> ReceiveAsync()
 		{
-			var actionInvoker = await _queue.ReceiveAsync().ContinueWith(p =>
+			var actionInvoker = await _queue.ReceiveAsync().ContinueWith(t =>
 			{
 				if (_queue.IsCompleted)
 				{
-					OnCompleted();
+					SetCompleted();
 				}
 
-				return p;
+				return t;
 
 			}, TaskContinuationOptions.OnlyOnRanToCompletion);
 
 			return await actionInvoker;
-		}
-
-		protected virtual void OnCompleted()
-		{
-			if (_state.SafeWaitHandle != null && !_state.SafeWaitHandle.IsClosed)
-			{
-				_state.Set();
-			}
 		}
 
 		public void Complete()
@@ -60,8 +52,16 @@ namespace WorkerDispatcher
 
 			if (_queue.Count == 0)
 			{
-				OnCompleted();
+				SetCompleted();
 			}			
+		}
+
+		private void SetCompleted()
+		{
+			if (_state.SafeWaitHandle != null && !_state.SafeWaitHandle.IsClosed)
+			{
+				_state.Set();
+			}
 		}
 
 		public void WaitCompleted(int millisecondsTimeout)

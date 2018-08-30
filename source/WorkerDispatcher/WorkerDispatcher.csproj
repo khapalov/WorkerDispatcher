@@ -20,7 +20,7 @@ Added typed invoke</PackageReleaseNotes>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>../../build/Debug</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0</DefineConstants>
+    <DefineConstants>TRACE;NETSTANDARD2_0;NETSTANDARD;NETSTANDARD2_0;NETSTANDARD;NETSTANDARD2_0;DEBUG;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
