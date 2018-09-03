@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace WorkerDispatcher
 {
-	public class QueueWorker : IQueueWorker
+	internal class QueueWorker : IQueueWorker
 	{
 		private readonly QueueBlocked<IActionInvoker> _queue;
 		private readonly ManualResetEvent _state = new ManualResetEvent(false);

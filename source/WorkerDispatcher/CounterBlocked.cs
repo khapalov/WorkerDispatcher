@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace WorkerDispatcher
 {
-    public class CounterBlocked : ICounterBlocked
+    internal class CounterBlocked : ICounterBlocked
     {
 		private volatile bool _stop = false;
         private int _count = 0;
