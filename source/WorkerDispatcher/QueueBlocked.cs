@@ -37,45 +37,53 @@ namespace WorkerDispatcher
 			_autoResetEvent.Set();
 		}
 
-		public async Task<TData> ReceiveAsync()
-		{
-			return await Task.Run(() => ReceiveData());
-		}
-
 		public void Complete()
 		{
 			_queue.CompleteAdding();
 			_cancellationTokenSource.Cancel();
 		}
 
-		private TData ReceiveData()
+		public Task<TData> ReceiveAsync()
 		{
-			var cancellationToken = _cancellationTokenSource.Token;
+			var task = new TaskCompletionSource<TData>();
 
-			if (!_queue.TryTake(out TData data))
+			try
 			{
-				using (var reg = cancellationToken.Register(() => { if (!_autoResetEvent.SafeWaitHandle.IsClosed) _autoResetEvent.Set(); }))
+				var cancellationToken = _cancellationTokenSource.Token;
+
+				if (!_queue.TryTake(out TData data))
 				{
-					do
+					using (var reg = cancellationToken.Register(() => { if (!_autoResetEvent.SafeWaitHandle.IsClosed) _autoResetEvent.Set(); }))
 					{
-						if (!cancellationToken.IsCancellationRequested)
+						do
 						{
-							_autoResetEvent.WaitOne();
-						}
+							if (!cancellationToken.IsCancellationRequested)
+							{
+								_autoResetEvent.WaitOne();
+							}
 
-						if (_queue.TryTake(out data)) break;
+							if (_queue.TryTake(out data)) break;
 
 
-					} while (!cancellationToken.IsCancellationRequested);
+						} while (!cancellationToken.IsCancellationRequested);
+					}
+				}
+
+				if (cancellationToken.IsCancellationRequested && data == null)
+				{
+					task.TrySetCanceled(cancellationToken);
+				}
+				else
+				{
+					task.TrySetResult(data);
 				}
 			}
-
-			if (cancellationToken.IsCancellationRequested && data == null)
+			catch (Exception ex)
 			{
-				cancellationToken.ThrowIfCancellationRequested();
+				task.TrySetException(ex);
 			}
 
-			return data;
+			return task.Task;
 		}
 
 		#region IDisposable Support
@@ -90,6 +98,7 @@ namespace WorkerDispatcher
 					_queue.CompleteAdding();
 					_cancellationTokenSource.Cancel();
 					_autoResetEvent.Dispose();
+					_cancellationTokenSource.Dispose();
 				}
 
 				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.

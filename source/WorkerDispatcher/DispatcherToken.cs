@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WorkerDispatcher
 {
-    public class DispatcherToken : IDisposable, IDispatcherToken
+    public class DispatcherToken : IDispatcherToken
     {
         private readonly IQueueWorker _queueWorker;
         private readonly ICounterBlocked _processCount;
@@ -96,10 +96,10 @@ namespace WorkerDispatcher
         {
 			await Task.Yield();
 
-			WaitComplete(timeoutSeconds);
+			WaitCompleted(timeoutSeconds);
         }
 
-		public void WaitComplete(int timeoutSeconds = 60)
+		public void WaitCompleted(int timeoutSeconds = 60)
 		{
 			_queueWorker.Complete();
 
