@@ -71,11 +71,11 @@ namespace WorkerDispatcher
 
 				if (cancellationToken.IsCancellationRequested && data == null)
 				{
-					task.TrySetCanceled(cancellationToken);
+					task.SetCanceled();
 				}
 				else
 				{
-					task.TrySetResult(data);
+					task.SetResult(data);
 				}
 			}
 			catch (Exception ex)
