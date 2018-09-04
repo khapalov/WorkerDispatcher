@@ -28,15 +28,15 @@ for (int i = 1; i <= 20; i++)
 	dispathcerToken.Post(new MyWorker());
 
 	//send some class MyWorker, need implement IActionInvoker<TData>
-	dispathcerToken.Post(new MyDataWorker<TData>(), new MyTData());
+	dispathcerToken.Post(new MyDataWorker(), new MyTData());
 
 	//Set lifetime for current post
-	dispathcerToken.Post(new MyDataWorker<TData>(), new MyTData(), TimeSpan.FromSecond(10));
+	dispathcerToken.Post(new MyDataWorker(), new MyTData(), TimeSpan.FromSecond(10));
 
 	//Send inline post
 	dispatcherToken.Post(ct => Task.Delay(10000, ct));
 }
 
-//stop receive new worker and wait for the rest, default 30 second
-await dispatcherToken.Stop();
+//stop receive new worker and wait for the rest, default 60 second
+dispatcherToken.WaitCompleted();
 ```
