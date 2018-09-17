@@ -10,6 +10,7 @@ namespace WorkerDispatcher
     {
 		int ProcessCount { get; }
 		int ProcessLimit { get; }
+		int QueueProcessCount { get; }
 
 		void Post(Func<CancellationToken, Task> fn);
 		void Post(IActionInvoker actionInvoker);

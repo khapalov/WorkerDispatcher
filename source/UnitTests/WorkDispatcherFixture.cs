@@ -40,9 +40,9 @@ namespace UnitTests
 		}
 
 		[Test]
-		public async Task should_be_two_action_execute()
+		public void should_be_two_action_execute()
 		{
-			await DispatcherToken.Stop();
+			DispatcherToken.WaitCompleted();
 
 			MockActionInvoker.Verify(p => p.Invoke(It.IsAny<CancellationToken>()), Times.Exactly(2));
 		}
@@ -66,9 +66,9 @@ namespace UnitTests
 		}
 
 		[Test]
-		public async Task should_be_cancelled_work()
+		public void should_be_cancelled_work()
 		{
-			await DispatcherToken.Stop();
+			DispatcherToken.WaitCompleted();
 
 			MockWorkerHandler.Verify(p => p.HandleError(null, It.IsAny<decimal>(), true), Times.Once);
 		}
@@ -80,8 +80,8 @@ namespace UnitTests
 		[SetUp]
 		public void Initalize()
 		{
-			MockWorkerHandler.ResetCalls();
-			MockActionInvoker.ResetCalls();
+			MockWorkerHandler.Invocations.Clear();
+			MockActionInvoker.Invocations.Clear();
 
 			DispatcherToken = Factory.Start(new ActionDispatcherSettings
 			{
@@ -94,17 +94,17 @@ namespace UnitTests
 		}
 
 		[Test]
-		public async Task should_be_two_worker_from_all_success()
+		public void should_be_two_worker_from_all_success()
 		{
-			await DispatcherToken.Stop();
+			DispatcherToken.WaitCompleted();
 
 			MockActionInvoker.Verify(p => p.Invoke(It.IsAny<CancellationToken>()), Times.Exactly(2));
 		}
 
 		[Test]
-		public async Task should_be_from_all_worker_one_error()
+		public void should_be_from_all_worker_one_error()
 		{
-			await DispatcherToken.Stop();
+			DispatcherToken.WaitCompleted();
 
 			MockWorkerHandler.Verify(p => p.HandleError(It.IsAny<Exception>(), It.IsAny<decimal>(), It.IsAny<bool>()), Times.Once);
 		}
@@ -146,9 +146,9 @@ namespace UnitTests
 		}
 
 		[Test]
-		public async Task should_action_execute()
+		public void should_action_execute()
 		{
-			await DispatcherToken.Stop();
+			DispatcherToken.WaitCompleted();
 
 			MockActionDataInvoker.Verify(p => p.Invoke(It.Is<string>(s => s == ExpectData), It.IsAny<CancellationToken>()), Times.Exactly(1));
 		}

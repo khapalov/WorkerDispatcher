@@ -7,7 +7,7 @@
     <PackageProjectUrl>https://github.com/khapalov/WorkerDispatcher</PackageProjectUrl>
     <RepositoryUrl>https://github.com/khapalov/WorkerDispatcher</RepositoryUrl>
     <PackageTags>worker dispatcher async</PackageTags>
-    <Version>2.2.0</Version>
+    <Version>2.2.1</Version>
     <Description>Post async work
 Dispatcher support three work mode Parallel,Sequenced,ParallelLimit
 Parallel -&gt; all tasks are called in parallel
@@ -15,12 +15,16 @@ Sequenced -&gt; all tasks are called sequentially
 ParallelLimit -&gt; all tasks are called in parallel with the restriction on the number of threads</Description>
     <RepositoryType>GitHub</RepositoryType>
     <PackageReleaseNotes>Add inline post worker t.Post(ct=&gt;Task.Delay(500, ct));
-Added typed invoke</PackageReleaseNotes>
+Added typed invoke
+*Fixed await receive from queue
+*Fixed flow stop</PackageReleaseNotes>
+    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageIconUrl>https://www.nuget.org/Content/gallery/img/default-package-icon.svg</PackageIconUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>../../build/Debug</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0</DefineConstants>
+    <DefineConstants>TRACE;NETSTANDARD2_0;NETSTANDARD;NETSTANDARD2_0;NETSTANDARD;NETSTANDARD2_0;DEBUG;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
