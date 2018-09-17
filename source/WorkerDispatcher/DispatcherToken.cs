@@ -1,5 +1,6 @@
 ﻿//#define TRACE_STOP
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -112,7 +113,7 @@ namespace WorkerDispatcher
 			_queueWorker.WaitCompleted((int)timeout.TotalMilliseconds);
 
 #if TRACE_STOP
-			Console.WriteLine("queue completed");
+			Trace.WriteLine("queue completed");
 #endif
 			var currentTime = new TimeSpan(DateTime.Now.Ticks);
 			var delta = limitTime - currentTime;
@@ -120,11 +121,11 @@ namespace WorkerDispatcher
 			if (delta > TimeSpan.Zero)
 			{
 #if TRACE_STOP
-				Console.WriteLine($"stop process with {(int)delta.TotalMilliseconds}, sec: {(int)delta.TotalSeconds}");
+				Trace.WriteLine($"stop process with {(int)delta.TotalMilliseconds}, sec: {(int)delta.TotalSeconds}");
 #endif
 				_processCount.Wait((int)delta.TotalMilliseconds);
 #if TRACE_STOP
-				Console.WriteLine("process completed");
+				Trace.WriteLine("process completed");
 #endif
 			}
 		}
