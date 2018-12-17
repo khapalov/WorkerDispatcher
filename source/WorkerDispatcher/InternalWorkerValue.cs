@@ -17,7 +17,7 @@ namespace WorkerDispatcher
 			_actionInvoker = actionInvoker;
 		}
 
-		public async Task<object> Invoke(CancellationToken token)
+		public virtual async Task<object> Invoke(CancellationToken token)
 		{
 			return await _actionInvoker.Invoke(_data, token);
 		}

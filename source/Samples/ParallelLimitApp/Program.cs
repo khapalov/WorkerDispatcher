@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkerDispatcher;
@@ -7,16 +9,18 @@ using WorkerDispatcher;
 namespace Samples
 {
 	class Program
-	{
+	{        
 		static IDispatcherToken DisaptcherToken;
+
+        static int progressIndex = 0;
 
 		static void Execute()
 		{
-			PostSomeWorker();
-			PostSomeWorkerWithError();
-			PostSomeWorkerToLong();
+            //PostSomeWorker(sender);
+            //PostSomeWorkerWithError(sender);
+            //PostSomeWorkerToLong(sender);            
 
-			var t = Task.Run(async () =>
+            /*var t = Task.Run(async () =>
 			{
 				do
 				{
@@ -24,38 +28,62 @@ namespace Samples
 
 					Console.WriteLine($"queue count: {DisaptcherToken.QueueProcessCount}, current count: {DisaptcherToken.ProcessCount}");
 				} while (true);
-			});
+			});*/
 
-			DisaptcherToken.WaitCompleted(120);
-		}
 
-		private static void PostSomeWorker()
+            DisaptcherToken.Chain()
+                .Post(new Worker(), 10)
+                .Post(new Worker(), 20)
+                .Post(new WorkerWithError(), 3)
+                .Post(new WorkerToLong(), 30)
+                .Run(new CompletedWorker());
+
+            /*.Run((WorkerCompletedData completedData) =>
+            {
+                foreach (var data in completedData.Results)
+                {
+                    Console.WriteLine($"Data: {data.Data}, Duration:{data.Duration} Result: {data.Result?.ToString()}, IsError: {data.IsError}, IsCancelled: {data.IsCancelled}");
+                }
+            });*/
+
+            //Task.Delay(2000).Wait();            
+           
+        }       
+
+        public static void CompleteAll(int[] arr)
+        {
+            Console.WriteLine($"Competed {arr.Length}");
+            var res = string.Join(", ", arr.Select((index, p) => $"{p}={index}"));
+            Console.WriteLine($"Result: {res}");
+        }
+
+        private static void PostSomeWorker(IDispatcherTokenSender sender)
 		{
 			for (int i = 0; i < 100; i++)
 			{
 				var save = i;
 
-				DisaptcherToken.Post(new Worker(), save);
+                sender.Post(new Worker(), save);
 			}
 		}
 
-		private static void PostSomeWorkerWithError()
+		private static void PostSomeWorkerWithError(IDispatcherTokenSender sender)
 		{
 			for (int i = 0; i < 100; i++)
 			{
 				var save = i;
 
-				DisaptcherToken.Post(new WorkerWithError(), save);
+                sender.Post(new WorkerWithError(), save);
 			}
 		}
 
-		private static void PostSomeWorkerToLong()
+		private static void PostSomeWorkerToLong(IDispatcherTokenSender sender)
 		{
 			for (int i = 0; i < 100; i++)
 			{
 				var save = i;
 
-				DisaptcherToken.Post(new WorkerToLong(), save);
+                sender.Post(new WorkerToLong(), save);
 			}
 		}
 
@@ -77,8 +105,11 @@ namespace Samples
 
 			stopwatch.Stop();
 
-			Console.WriteLine($"STOP {stopwatch.Elapsed.TotalSeconds} queue count: {DisaptcherToken.QueueProcessCount}, current count: {DisaptcherToken.ProcessCount}");			
-		}
+			Console.WriteLine($"STOP {stopwatch.Elapsed.TotalSeconds} queue count: {DisaptcherToken.QueueProcessCount}, current count: {DisaptcherToken.ProcessCount}");
+            Console.ReadKey();
+
+            DisaptcherToken.WaitCompleted(120);
+        }
 	}
 	internal class Worker : IActionInvoker<int>
 	{
@@ -88,9 +119,26 @@ namespace Samples
 
 			return $"i={data}";
 		}
-	}
+	}    
 
-	internal class WorkerWithError : IActionInvoker<int>
+    internal class CompletedWorker : IActionInvoker<WorkerCompletedData>
+    {
+        public async Task<object> Invoke(WorkerCompletedData completed, CancellationToken token)
+        {
+            await Task.Yield();
+
+            foreach (var data in completed.Results)
+            {
+                Console.WriteLine($"Data: {data.Data}, Duration:{data.Duration} Result: {data.Result?.ToString()}, IsError: {data.IsError}, IsCancelled: {data.IsCancelled}");
+            }
+
+            var totalDuration = completed.Results.Sum(p => p.Duration);
+
+            return $"Ok, TotalDuration {totalDuration}";
+        }
+    }
+
+    internal class WorkerWithError : IActionInvoker<int>
 	{
 		public async Task<object> Invoke(int data, CancellationToken token)
 		{
@@ -139,5 +187,4 @@ namespace Samples
 			Console.WriteLine($"result: {result}, duration: {duration}");
 		}
 	}
-
 }
