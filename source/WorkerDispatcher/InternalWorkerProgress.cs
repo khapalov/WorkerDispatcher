@@ -11,7 +11,7 @@ namespace WorkerDispatcher
     {
         public IProgress<WorkerProgressData> Progress { get; }
 
-        public int Index { get; }
+        internal int Index { get; }
 
         private readonly IActionInvoker _actionInvoker;
 

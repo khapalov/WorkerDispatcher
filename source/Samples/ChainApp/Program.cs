@@ -13,14 +13,37 @@ namespace ChainApp
 
         static void Execute()
         {
+            var completedChain = CreateCheain(1, 10);
+            completedChain.Run(new CompletedWorker());
+
+            var callbackChain = CreateCheain(11, 10);
+            callbackChain.Run(async p =>
+            {
+                await Task.Yield();
+
+                var cpl = await new CompletedWorker().Invoke(p, CancellationToken.None);
+            });
+
+            var syncChaing = CreateCheain(21, 10);
+            var res = syncChaing.RunSync();
+
+            foreach (var data in res.Results)
+            {
+                Console.WriteLine($"Data: {data.Data}, Duration:{data.Duration} Result: {data.Result?.ToString()}, IsError: {data.IsError}, IsCancelled: {data.IsCancelled}");
+            }
+        }
+
+        private static IWorkerChain CreateCheain(int start, int count)
+        {
             var chain = DisaptcherToken.Chain();
 
-            for (var i = 1; i < 100; i++)
+            var len = start + count;
+            for (var i = start; i < len; i++)
             {
-                chain.Post(new Worker(), i);
+                chain.Post(new WorkerToLong(), i);
             }
 
-            chain.Run(new CompletedWorker());           
+            return chain;
         }
 
         static void Main(string[] args)
@@ -30,11 +53,11 @@ namespace ChainApp
             DisaptcherToken = factory.Start(new ActionDispatcherSettings
             {
                 Schedule = ScheduleType.Parallel,
-                Timeout = TimeSpan.FromSeconds(1.5)
+                Timeout = TimeSpan.FromSeconds(5)
             });
 
             Execute();
-            
+
             Console.ReadKey();
 
             DisaptcherToken.WaitCompleted(120);

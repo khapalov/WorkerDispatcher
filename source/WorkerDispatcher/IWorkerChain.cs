@@ -14,5 +14,7 @@ namespace WorkerDispatcher
         void Run(IActionInvoker<WorkerCompletedData> invoker);
 
         void Run(Action<WorkerCompletedData> fn);
+
+        WorkerCompletedData RunSync();
     }
 }

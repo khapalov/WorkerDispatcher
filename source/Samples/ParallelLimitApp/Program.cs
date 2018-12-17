@@ -85,7 +85,7 @@ namespace Samples
         public async Task<object> Invoke(int data, CancellationToken token)
         {
             await Task.Delay(1000, token);
-
+            
             return $"i={data}";
         }
     }

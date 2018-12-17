@@ -20,15 +20,11 @@ namespace WorkerDispatcher
 
         public void Run(IActionInvoker<WorkerCompletedData> compeltedInvoker)
         {
-            _workerChainDefaults.CompleteAdding();            
-
-            var arr = _workerChainDefaults.ToArray();
-
-            _workerChainDefaults.Dispose();
+            IActionInvoker[] arr = ExtractArrray();
 
             var progressDatas = new WorkerProgressData[arr.Length];
 
-            var progress = new WorkerProgressReport(_sender, progressDatas, compeltedInvoker);
+            var progress = new WorkerProgressReportCompleted(_sender, progressDatas, compeltedInvoker);
 
             for (var i = 0; i < arr.Length; i++)
             {
@@ -38,16 +34,46 @@ namespace WorkerDispatcher
 
         public void Run(Action<WorkerCompletedData> fn)
         {
-            var arr = _workerChainDefaults.ToArray();
+            IActionInvoker[] arr = ExtractArrray();
 
             var progressDatas = new WorkerProgressData[arr.Length];
 
-            var progress = new WorkerProgressReport(_sender, progressDatas, fn);
+            var progress = new WorkerProgressReportCallback(progressDatas, fn);
 
             for (var i = 0; i < arr.Length; i++)
             {
                 _sender.Post(new InternalWorkerProgress(arr[i], progress, i));
             }
+        }
+
+        public WorkerCompletedData RunSync()
+        {
+            IActionInvoker[] arr = ExtractArrray();
+
+            var progressDatas = new WorkerProgressData[arr.Length];
+
+            var progress = new WorkerProgressReportSync(_sender, progressDatas);
+
+            for (var i = 0; i < arr.Length; i++)
+            {
+                _sender.Post(new InternalWorkerProgress(arr[i], progress, i));
+            }
+
+            using (progress)
+            {
+                return progress.WaitReady();
+            }
+        }
+
+        private IActionInvoker[] ExtractArrray()
+        {
+            _workerChainDefaults.CompleteAdding();
+
+            var arr = _workerChainDefaults.ToArray();
+
+            _workerChainDefaults.Dispose();
+
+            return arr;
         }
 
         public IWorkerChain Chain()
