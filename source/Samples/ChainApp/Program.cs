@@ -13,12 +13,14 @@ namespace ChainApp
 
         static void Execute()
         {
-            DisaptcherToken.Chain()
-                .Post(new Worker(), 10)
-                .Post(new Worker(), 20)
-                .Post(new WorkerWithError(), 3)
-                .Post(new WorkerToLong(), 30)
-                .Run(new CompletedWorker());
+            var chain = DisaptcherToken.Chain();
+
+            for (var i = 1; i < 100; i++)
+            {
+                chain.Post(new Worker(), i);
+            }
+
+            chain.Run(new CompletedWorker());           
         }
 
         static void Main(string[] args)
@@ -36,7 +38,6 @@ namespace ChainApp
             Console.ReadKey();
 
             DisaptcherToken.WaitCompleted(120);
-
         }
     }
 
