@@ -13,6 +13,7 @@ namespace WorkerDispatcher
             : base(datas)
         {
             _sender = sender;
+            _actionInvoker = actionInvoker;
         }
 
         protected override void OnComplete(WorkerCompletedData datas)

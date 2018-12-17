@@ -68,6 +68,7 @@ namespace ChainApp
     {
         public void HandleError(Exception ex, decimal duration, bool isCancel)
         {
+            //Console.WriteLine($"error: {ex?.ToString()}, duration: {duration}, isCancelled: {isCancel}");
             Console.WriteLine($"error: {ex?.InnerException?.Message}, duration: {duration}, isCancelled: {isCancel}");
         }
 
