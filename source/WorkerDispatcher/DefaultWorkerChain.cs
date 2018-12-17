@@ -52,7 +52,7 @@ namespace WorkerDispatcher
 
             var progressDatas = new WorkerProgressData[arr.Length];
 
-            var progress = new WorkerProgressReportSync(_sender, progressDatas);
+            var progress = new WorkerProgressReportSync(progressDatas);
 
             for (var i = 0; i < arr.Length; i++)
             {
@@ -66,12 +66,17 @@ namespace WorkerDispatcher
         }
 
         private IActionInvoker[] ExtractArrray()
-        {
+        {            
             _workerChainDefaults.CompleteAdding();
-
+            
             var arr = _workerChainDefaults.ToArray();
 
             _workerChainDefaults.Dispose();
+
+            if (arr.Length == 0)
+            {
+                throw new ArgumentException("chain collection is empty");
+            }
 
             return arr;
         }

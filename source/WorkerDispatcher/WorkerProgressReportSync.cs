@@ -11,9 +11,7 @@ namespace WorkerDispatcher
 
         private WorkerCompletedData _result;
 
-        public WorkerProgressReportSync(
-            IDispatcherTokenSender sender,
-            WorkerProgressData[] datas) : base(datas)
+        public WorkerProgressReportSync(WorkerProgressData[] datas) : base(datas)
         {
             _manualResetEvent = new ManualResetEventSlim(false);
         }
