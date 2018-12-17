@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-
+using WorkerDispatcher.Workers;
 
 namespace WorkerDispatcher
 {
@@ -70,7 +70,7 @@ namespace WorkerDispatcher
                 throw new ArgumentNullException(nameof(fn));
             }
 
-            _queueWorker.Post(new InternalWorker(fn));
+            _queueWorker.Post(new InternalWorkerFunc(fn));
         }
 
         public void Post<TData>(IActionInvoker<TData> actionInvoker, TData data)

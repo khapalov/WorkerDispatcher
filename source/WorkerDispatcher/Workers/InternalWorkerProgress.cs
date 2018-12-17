@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WorkerDispatcher
+namespace WorkerDispatcher.Workers
 {
     internal class InternalWorkerProgress : IActionInvoker
     {

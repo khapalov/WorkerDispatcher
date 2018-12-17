@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using WorkerDispatcher.Workers;
 
 namespace WorkerDispatcher
 {
@@ -65,10 +64,32 @@ namespace WorkerDispatcher
             }
         }
 
+        public Task<WorkerCompletedData> RunAsync()
+        {
+            var taskCompletionSource = new TaskCompletionSource<WorkerCompletedData>();
+
+            try
+            {
+                var result = RunSync();
+
+                taskCompletionSource.SetResult(result);
+            }
+            catch (OperationCanceledException)
+            {
+                taskCompletionSource.TrySetCanceled();
+            }
+            catch (Exception ex)
+            {
+                taskCompletionSource.TrySetException(ex);
+            }
+
+            return taskCompletionSource.Task;
+        }
+
         private IActionInvoker[] ExtractArrray()
-        {            
+        {
             _workerChainDefaults.CompleteAdding();
-            
+
             var arr = _workerChainDefaults.ToArray();
 
             _workerChainDefaults.Dispose();
@@ -105,6 +126,15 @@ namespace WorkerDispatcher
         public IWorkerChain Post<TData>(IActionInvoker<TData> actionInvoker, TData data)
         {
             var internalWorkerWalue = new InternalWorkerValue<TData>(actionInvoker, data);
+
+            _workerChainDefaults.Add(internalWorkerWalue);
+
+            return this;
+        }
+
+        public IWorkerChain Post(Func<CancellationToken, Task> fn)
+        {
+            var internalWorkerWalue = new InternalWorkerFunc(fn);
 
             _workerChainDefaults.Add(internalWorkerWalue);
 

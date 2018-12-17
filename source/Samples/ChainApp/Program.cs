@@ -11,12 +11,16 @@ namespace ChainApp
     {
         static IDispatcherToken DisaptcherToken;
 
-        static void Execute()
+        static async Task Execute()
         {
-            var completedChain = CreateCheain(1, 10);
+            await Task.Yield();
+
+            //Chain with run CompleteWorker on completed
+            var completedChain = CreateChain(1, 10);
             completedChain.Run(new CompletedWorker());
 
-            var callbackChain = CreateCheain(11, 10);
+            //Chain with callback on completed
+            var callbackChain = CreateChain(11, 10);
             callbackChain.Run(async p =>
             {
                 await Task.Yield();
@@ -24,16 +28,32 @@ namespace ChainApp
                 var cpl = await new CompletedWorker().Invoke(p, CancellationToken.None);
             });
 
-            var syncChaing = CreateCheain(21, 10);
-            var res = syncChaing.RunSync();
+            //Chain with async task
+            var asyncChaing = CreateChain(21, 10);
+            await asyncChaing.RunAsync().ContinueWith(t =>
+            {
+                if (!t.IsFaulted)
+                {
+                    PrintResult(t.Result);
+                }
+            }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
+            //Chain run synchronous and result on completed
+            var syncChaing = CreateChain(31, 10);
+            var res = await syncChaing.RunAsync();
+
+            PrintResult(res);
+        }
+
+        private static void PrintResult(WorkerCompletedData res)
+        {
             foreach (var data in res.Results)
             {
                 Console.WriteLine($"Data: {data.Data}, Duration:{data.Duration} Result: {data.Result?.ToString()}, IsError: {data.IsError}, IsCancelled: {data.IsCancelled}");
             }
         }
 
-        private static IWorkerChain CreateCheain(int start, int count)
+        private static IWorkerChain CreateChain(int start, int count)
         {
             var chain = DisaptcherToken.Chain();
 
@@ -41,6 +61,20 @@ namespace ChainApp
             for (var i = start; i < len; i++)
             {
                 chain.Post(new WorkerToLong(), i);
+            }
+
+            return chain;
+        }
+
+        private static IWorkerChain CreateChainInline(int start, int count)
+        {
+            var chain = DisaptcherToken.Chain();
+
+            var len = start + count;
+            for (var i = start; i < len; i++)
+            {
+                var s = i;
+                chain.Post(async ct => { await Task.Delay(s * 500); Console.WriteLine($"inline data i={s}"); });                
             }
 
             return chain;
@@ -56,7 +90,7 @@ namespace ChainApp
                 Timeout = TimeSpan.FromSeconds(5)
             });
 
-            Execute();
+            Execute().Wait();
 
             Console.ReadKey();
 
