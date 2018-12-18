@@ -9,12 +9,12 @@ namespace WorkerDispatcher
     internal class DefaultWorkerChain : IWorkerChain
     {
         private readonly IDispatcherTokenSender _sender;
-        private readonly BlockingCollection<IActionInvoker> _workerChainDefaults;
+        private readonly ConcurrentQueue<IActionInvoker> _workerChainDefaults;
 
         public DefaultWorkerChain(IDispatcherTokenSender sender)
         {
             _sender = sender;
-            _workerChainDefaults = new BlockingCollection<IActionInvoker>();
+            _workerChainDefaults = new ConcurrentQueue<IActionInvoker>();
         }
 
         public void Run(IActionInvoker<WorkerCompletedData> compeltedInvoker)
@@ -51,15 +51,13 @@ namespace WorkerDispatcher
 
             var progressDatas = new WorkerProgressData[arr.Length];
 
-            var progress = new WorkerProgressReportSync(progressDatas);
-
-            for (var i = 0; i < arr.Length; i++)
+            using (var progress = new WorkerProgressReportSync(progressDatas))
             {
-                _sender.Post(new InternalWorkerProgress(arr[i], progress, i));
-            }
+                for (var i = 0; i < arr.Length; i++)
+                {
+                    _sender.Post(new InternalWorkerProgress(arr[i], progress, i));
+                }
 
-            using (progress)
-            {
                 return progress.WaitReady();
             }
         }
@@ -88,11 +86,7 @@ namespace WorkerDispatcher
 
         private IActionInvoker[] ExtractArrray()
         {
-            _workerChainDefaults.CompleteAdding();
-
             var arr = _workerChainDefaults.ToArray();
-
-            _workerChainDefaults.Dispose();
 
             if (arr.Length == 0)
             {
@@ -109,7 +103,7 @@ namespace WorkerDispatcher
 
         public IWorkerChain Post(IActionInvoker actionInvoker)
         {
-            _workerChainDefaults.Add(actionInvoker);
+            _workerChainDefaults.Enqueue(actionInvoker);
 
             return this;
         }
@@ -118,7 +112,7 @@ namespace WorkerDispatcher
         {
             var internalWorkerValue = new InternalWorkerValueLifetime<TData>(actionInvoker, data, lifetime);
 
-            _workerChainDefaults.Add(internalWorkerValue);
+            _workerChainDefaults.Enqueue(internalWorkerValue);
 
             return this;
         }
@@ -127,7 +121,7 @@ namespace WorkerDispatcher
         {
             var internalWorkerWalue = new InternalWorkerValue<TData>(actionInvoker, data);
 
-            _workerChainDefaults.Add(internalWorkerWalue);
+            _workerChainDefaults.Enqueue(internalWorkerWalue);
 
             return this;
         }
@@ -136,7 +130,7 @@ namespace WorkerDispatcher
         {
             var internalWorkerWalue = new InternalWorkerFunc(fn);
 
-            _workerChainDefaults.Add(internalWorkerWalue);
+            _workerChainDefaults.Enqueue(internalWorkerWalue);
 
             return this;
         }
