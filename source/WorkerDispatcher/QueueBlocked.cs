@@ -10,6 +10,7 @@ namespace WorkerDispatcher
 		private readonly ConcurrentQueue<TData> _queue;
 		private readonly AutoResetEvent _autoResetEvent;
 		private readonly CancellationTokenSource _cancellationTokenSource;
+        private readonly ReaderWriterLockSlim _rwLock;
 
         private volatile bool _isCompleted = false;
 
@@ -18,7 +19,8 @@ namespace WorkerDispatcher
 			_queue = new ConcurrentQueue<TData>();
 			_autoResetEvent = new AutoResetEvent(false);
 			_cancellationTokenSource = new CancellationTokenSource();
-		}
+            _rwLock = new ReaderWriterLockSlim();
+        }
 
 		public int Count
 		{
@@ -35,21 +37,37 @@ namespace WorkerDispatcher
 
         public void Post(TData data)
         {
-            if (_isCompleted)
+            _rwLock.EnterReadLock();
+            try
             {
-                throw new InvalidOperationException("QueueBlocked has been complete");
-            }
+                if (_isCompleted)
+                {
+                    throw new InvalidOperationException("QueueBlocked has been complete");
+                }
 
-            _queue.Enqueue(data);
-            _autoResetEvent.Set();
+                _queue.Enqueue(data);
+                _autoResetEvent.Set();
+            }
+            finally
+            {
+                _rwLock.ExitReadLock();
+            }
         }
 
         public void Complete()
         {
             if (_isCompleted) return;
 
-            _isCompleted = true;
-            _cancellationTokenSource.Cancel();
+            _rwLock.EnterWriteLock();
+            try
+            {
+                _isCompleted = true;
+                _cancellationTokenSource.Cancel();
+            }
+            finally
+            {
+                _rwLock.ExitWriteLock();
+            }
         }
 
 		public Task<TData> ReceiveAsync()
@@ -109,6 +127,7 @@ namespace WorkerDispatcher
                     _autoResetEvent.Set();
                     _autoResetEvent.Dispose();
 					_cancellationTokenSource.Dispose();
+                    _rwLock.Dispose();
                 }
 
 				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
