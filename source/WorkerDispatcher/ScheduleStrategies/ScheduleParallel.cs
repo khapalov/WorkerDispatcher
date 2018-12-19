@@ -19,7 +19,7 @@ namespace WorkerDispatcher.ScheduleStrategies
             while (!cancellationToken.IsCancellationRequested || !queueWorker.IsEmpty)
             {
                 await queueWorker.ReceiveAsync()
-                    .ContinueWith(async invoker => await workerRunner.ExcecuteInvoker(await invoker), cancellationToken);
+                    .ContinueWith(async invoker => await workerRunner.ExcecuteInvoker(await invoker), TaskContinuationOptions.OnlyOnRanToCompletion);
             }
         }       
     }

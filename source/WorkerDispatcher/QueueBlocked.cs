@@ -7,13 +7,15 @@ namespace WorkerDispatcher
 {
 	internal class QueueBlocked<TData> : IDisposable
 	{
-		private readonly BlockingCollection<TData> _queue;
+		private readonly ConcurrentQueue<TData> _queue;
 		private readonly AutoResetEvent _autoResetEvent;
 		private readonly CancellationTokenSource _cancellationTokenSource;
 
+        private volatile bool _isCompleted = false;
+
 		public QueueBlocked()
 		{
-			_queue = new BlockingCollection<TData>();
+			_queue = new ConcurrentQueue<TData>();
 			_autoResetEvent = new AutoResetEvent(false);
 			_cancellationTokenSource = new CancellationTokenSource();
 		}
@@ -27,21 +29,28 @@ namespace WorkerDispatcher
 		{
 			get
 			{
-				return _queue.IsCompleted;
+				return _isCompleted && _queue.IsEmpty;
 			}
 		}
 
-		public void Post(TData data)
-		{
-			_queue.Add(data);
-			_autoResetEvent.Set();
-		}
+        public void Post(TData data)
+        {
+            if (_isCompleted)
+            {
+                throw new InvalidOperationException("QueueBlocked has been complete");
+            }
 
-		public void Complete()
-		{
-			_queue.CompleteAdding();
-			_cancellationTokenSource.Cancel();
-		}
+            _queue.Enqueue(data);
+            _autoResetEvent.Set();
+        }
+
+        public void Complete()
+        {
+            if (_isCompleted) return;
+
+            _isCompleted = true;
+            _cancellationTokenSource.Cancel();
+        }
 
 		public Task<TData> ReceiveAsync()
 		{
@@ -51,7 +60,7 @@ namespace WorkerDispatcher
 			{
 				var cancellationToken = _cancellationTokenSource.Token;
 
-				if (!_queue.TryTake(out TData data))
+				if (!_queue.TryDequeue(out TData data))
 				{
 					using (var reg = cancellationToken.Register(() => { if (!_autoResetEvent.SafeWaitHandle.IsClosed) _autoResetEvent.Set(); }))
 					{
@@ -62,7 +71,7 @@ namespace WorkerDispatcher
 								_autoResetEvent.WaitOne();
 							}
 
-							if (_queue.TryTake(out data)) break;
+							if (_queue.TryDequeue(out data)) break;
 
 
 						} while (!cancellationToken.IsCancellationRequested);
@@ -95,11 +104,11 @@ namespace WorkerDispatcher
 			{
 				if (disposing)
 				{
-					_queue.CompleteAdding();
+                    _isCompleted = true;
 					_cancellationTokenSource.Cancel();
                     _autoResetEvent.Set();
                     _autoResetEvent.Dispose();
-					_cancellationTokenSource.Dispose();                    
+					_cancellationTokenSource.Dispose();
                 }
 
 				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
