@@ -3,15 +3,18 @@ using System.Threading.Tasks;
 
 namespace WorkerDispatcher.Workers
 {
-	internal class InternalWorkerValue<TData> : IActionInvoker
-	{
+	internal class InternalWorkerValue<TData> : IActionInvoker, IActionInvokerData
+    {
 		private readonly TData _data;
 		private readonly IActionInvoker<TData> _actionInvoker;
+
+        public object Data { get; }
 
 		public InternalWorkerValue(IActionInvoker<TData> actionInvoker, TData data)
 		{
 			_data = data;
 			_actionInvoker = actionInvoker;
+            Data = data;
 		}
 
 		public virtual async Task<object> Invoke(CancellationToken token)
@@ -19,4 +22,9 @@ namespace WorkerDispatcher.Workers
 			return await _actionInvoker.Invoke(_data, token);
 		}
 	}
+
+    internal interface IActionInvokerData
+    {
+        object Data { get; }
+    }
 }

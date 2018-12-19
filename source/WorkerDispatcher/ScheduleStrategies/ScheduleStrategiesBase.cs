@@ -37,6 +37,10 @@ namespace WorkerDispatcher.ScheduleStrategies
                 {
                     await StartCore(_workerRunner, _queueWorker, cancellationToken);
                 }
+                catch(TaskCanceledException)
+                {                    
+                    Debug.WriteLine("cancellation process");
+                }
                 catch (Exception ex)
                 {
                     _handler.HandleFault(ex);

@@ -11,38 +11,89 @@ namespace ChainApp
     {
         static IDispatcherToken DisaptcherToken;
 
-        static async Task Execute()
+        static async Task Execute(string sel)
         {
             await Task.Yield();
 
-            //Chain with run CompleteWorker on completed
-            var completedChain = CreateChain(1, 10);
-            completedChain.Run(new CompletedWorker());
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;            
 
-            //Chain with callback on completed
-            var callbackChain = CreateChain(11, 10);
-            callbackChain.Run(async p =>
+            var select = sel ?? "complete";
+
+            switch (select)
             {
-                await Task.Yield();
+                case "complete":
+                    {
+                        //Chain with run CompleteWorker on completed
+                        var completedChain = CreateChain(1, 10);
+                        completedChain.Run(new CompletedWorker());
 
-                var cpl = await new CompletedWorker().Invoke(p, CancellationToken.None);
+                        break;
+                    }
+                case "callback":
+                    {
+                        //Chain with callback on completed
+                        var callbackChain = CreateChain(11, 10);
+                        callbackChain.Run(async p =>
+                        {
+                            await Task.Yield();
+
+                            var cpl = await new CompletedWorker().Invoke(p, CancellationToken.None);
+                        });
+
+                        break;
+                    }
+                case "async":
+                    {
+                        //Chain with async task
+                        var asyncChaing = CreateChain(21, 10);
+                        await asyncChaing.RunAsync().ContinueWith(t =>
+                        {
+                            if (!t.IsFaulted)
+                            {
+                                PrintResult(t.Result);
+                            }
+                        }, TaskContinuationOptions.OnlyOnRanToCompletion);
+
+                        break;
+                    }
+                case "sync":
+                    {
+                        //Chain run synchronous and result on completed
+                        var stopwatch = Stopwatch.StartNew();
+                        var syncChaing = CreateChain(31, 10);
+                        var res = syncChaing.RunSync();
+                        stopwatch.Stop();
+                        Console.WriteLine($"Total time: {stopwatch.ElapsedMilliseconds}");
+                        PrintResult(res);
+
+                        break;
+                    }
+            }
+        }
+
+        static void Main(string[] args)
+        {
+            var factory = new ActionDispatcherFactory(new Workerhandler());
+
+            DisaptcherToken = factory.Start(new ActionDispatcherSettings
+            {
+                Schedule = ScheduleType.Parallel,
+                Timeout = TimeSpan.FromSeconds(1)
             });
 
-            //Chain with async task
-            var asyncChaing = CreateChain(21, 10);
-            await asyncChaing.RunAsync().ContinueWith(t =>
-            {
-                if (!t.IsFaulted)
-                {
-                    PrintResult(t.Result);
-                }
-            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            Execute(args.Length > 0 ? args[0] : default(string)).Wait();
 
-            //Chain run synchronous and result on completed
-            var syncChaing = CreateChain(31, 10);
-            var res = await syncChaing.RunAsync();
+            Console.ReadKey();
 
-            PrintResult(res);
+            Console.WriteLine("await stop");
+            DisaptcherToken.WaitCompleted(120);
+            DisaptcherToken.Dispose();
+            Console.WriteLine("stopped success");            
+        }
+
+        private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+        {
+            Console.WriteLine("process exit");
         }
 
         private static void PrintResult(WorkerCompletedData res)
@@ -51,6 +102,10 @@ namespace ChainApp
             {
                 Console.WriteLine($"Data: {data.Data}, Duration:{data.Duration} Result: {data.Result?.ToString()}, IsError: {data.IsError}, IsCancelled: {data.IsCancelled}");
             }
+
+            var maxDuration = res.Results.Max(p => p.Duration);
+
+            Console.WriteLine($"Max duration: {maxDuration}");
         }
 
         private static IWorkerChain CreateChain(int start, int count)
@@ -74,27 +129,10 @@ namespace ChainApp
             for (var i = start; i < len; i++)
             {
                 var s = i;
-                chain.Post(async ct => { await Task.Delay(s * 500); Console.WriteLine($"inline data i={s}"); });                
+                chain.Post(async ct => { await Task.Delay(s * 500); Console.WriteLine($"inline data i={s}"); });
             }
 
             return chain;
-        }
-
-        static void Main(string[] args)
-        {
-            var factory = new ActionDispatcherFactory(new Workerhandler());
-
-            DisaptcherToken = factory.Start(new ActionDispatcherSettings
-            {
-                Schedule = ScheduleType.Parallel,
-                Timeout = TimeSpan.FromSeconds(5)
-            });
-
-            Execute().Wait();
-
-            Console.ReadKey();
-
-            DisaptcherToken.WaitCompleted(120);
         }
     }
 
@@ -163,7 +201,7 @@ namespace ChainApp
     {
         public async Task<object> Invoke(int data, CancellationToken token)
         {
-            if ((data % 3) == 0)
+            if ((data % 2) == 0)
             {
                 await Task.Delay(3000, token);
             }

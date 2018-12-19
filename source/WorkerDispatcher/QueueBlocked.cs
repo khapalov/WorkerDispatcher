@@ -99,8 +99,7 @@ namespace WorkerDispatcher
 					_cancellationTokenSource.Cancel();
                     _autoResetEvent.Set();
                     _autoResetEvent.Dispose();
-					_cancellationTokenSource.Dispose();
-                    _queue.Dispose();
+					_cancellationTokenSource.Dispose();                    
                 }
 
 				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.

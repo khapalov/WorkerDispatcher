@@ -7,16 +7,16 @@ namespace WorkerDispatcher.Workers
 {
     internal class InternalWorkerProgress : IActionInvoker
     {
-        public IProgress<WorkerProgressData> Progress { get; }
+        private readonly IProgress<WorkerProgressData> _progress;
 
-        internal int Index { get; }
+        private readonly int _index;
 
         private readonly IActionInvoker _actionInvoker;
 
         public InternalWorkerProgress(IActionInvoker actionInvoker, IProgress<WorkerProgressData> progress, int index)
         {
-            Progress = progress;
-            Index = index;
+            _progress = progress;
+            _index = index;
             _actionInvoker = actionInvoker;
         }
 
@@ -26,6 +26,8 @@ namespace WorkerDispatcher.Workers
 
             var result = default(object);
 
+            var workerData = _actionInvoker is IActionInvokerData data ? data.Data : default(object);
+
             try
             {
                 stopwatch.Start();
@@ -34,21 +36,25 @@ namespace WorkerDispatcher.Workers
 
                 stopwatch.Stop();
 
-                Progress.Report(new WorkerProgressData
+                _progress.Report(new WorkerProgressData
                 {
                     Duration = stopwatch.ElapsedMilliseconds,
-                    Index = Index,
-                    Result = result
+                    Index = _index,
+                    Result = result,
+                    Data = workerData
                 });
             }
-            catch (OperationCanceledException)
+            catch (TaskCanceledException)
             {
-                Progress.Report(new WorkerProgressData
+                stopwatch.Stop();
+
+                _progress.Report(new WorkerProgressData
                 {
                     Duration = stopwatch.ElapsedMilliseconds,
-                    Index = Index,
+                    Index = _index,
                     IsError = true,
-                    IsCancelled = true
+                    IsCancelled = true,
+                    Data = workerData
                 });
 
                 throw;
@@ -57,11 +63,12 @@ namespace WorkerDispatcher.Workers
             {
                 stopwatch.Stop();
 
-                Progress.Report(new WorkerProgressData
+                _progress.Report(new WorkerProgressData
                 {
                     Duration = stopwatch.ElapsedMilliseconds,
-                    Index = Index,
-                    IsError = true                    
+                    Index = _index,
+                    IsError = true,
+                    Data = workerData
                 });
 
                 throw;

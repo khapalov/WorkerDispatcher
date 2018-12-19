@@ -41,7 +41,7 @@ namespace WorkerDispatcher
 
 				return t;
 
-			}, TaskContinuationOptions.OnlyOnRanToCompletion);
+			});
 
 			return await actionInvoker;
 		}
