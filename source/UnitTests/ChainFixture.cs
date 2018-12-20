@@ -81,6 +81,8 @@ namespace UnitTests
         {
             Callback = (WorkerCompletedData p) => MockCompleted.Object.Invoke(p, CancellationToken.None);
 
+            MockCompleted.Setup(p => p.Invoke(It.IsAny<WorkerCompletedData>(), It.IsAny<CancellationToken>()));
+
             DispatcherToken = Factory.Start(new ActionDispatcherSettings
             {
                 Timeout = TimeSpan.FromSeconds(1000)
@@ -98,6 +100,8 @@ namespace UnitTests
         [Test]
         public void should_be_invoke_callback()
         {
+            Task.Delay(100).Wait();
+
             DispatcherToken.WaitCompleted();
 
             MockCompleted.Verify(p => p.Invoke(It.IsAny<WorkerCompletedData>(), It.IsAny<CancellationToken>()), Times.Once);

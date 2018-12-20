@@ -70,7 +70,7 @@ namespace UnitTests
 		{
 			DispatcherToken.WaitCompleted();
 
-			MockWorkerHandler.Verify(p => p.HandleError(null, It.IsAny<decimal>(), true), Times.Once);
+			MockWorkerHandler.Verify(p => p.HandleError(It.IsAny<Exception>(), It.IsAny<decimal>(), true), Times.Once);
 		}
 	}
 
@@ -88,7 +88,9 @@ namespace UnitTests
 				Timeout = TimeSpan.FromSeconds(1)
 			});
 
-			DispatcherToken.Post(MockActionInvoker.Object);
+            MockActionInvoker.Setup(p => p.Invoke(It.IsAny<CancellationToken>())).ReturnsAsync(Guid.NewGuid());
+
+            DispatcherToken.Post(MockActionInvoker.Object);
 			DispatcherToken.Post(p => throw new ArgumentException());
 			DispatcherToken.Post(MockActionInvoker.Object);
 		}
