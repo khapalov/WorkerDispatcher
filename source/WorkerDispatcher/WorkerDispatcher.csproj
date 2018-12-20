@@ -7,7 +7,7 @@
     <PackageProjectUrl>https://github.com/khapalov/WorkerDispatcher</PackageProjectUrl>
     <RepositoryUrl>https://github.com/khapalov/WorkerDispatcher</RepositoryUrl>
     <PackageTags>worker dispatcher async</PackageTags>
-    <Version>2.2.1</Version>
+    <Version>2.3.0</Version>
     <Description>Post async work
 Dispatcher support three work mode Parallel,Sequenced,ParallelLimit
 Parallel -&gt; all tasks are called in parallel

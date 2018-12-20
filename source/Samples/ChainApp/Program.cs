@@ -31,8 +31,8 @@ namespace ChainApp
                     }
                 case "callback":
                     {
-                        //Chain with callback on completed
-                        var callbackChain = CreateChain(11, count);
+                        //Chain with call callback on completed
+                        var callbackChain = CreateChain(1, count);
                         callbackChain.Run(async p =>
                         {
                             await Task.Yield();
@@ -45,7 +45,7 @@ namespace ChainApp
                 case "async":
                     {
                         //Chain with async task
-                        var asyncChaing = CreateChain(21, count);
+                        var asyncChaing = CreateChain(1, count);
                         await asyncChaing.RunAsync().ContinueWith(t =>
                         {
                             if (!t.IsFaulted)
@@ -58,9 +58,9 @@ namespace ChainApp
                     }
                 case "sync":
                     {
-                        //Chain run synchronous and result on completed
+                        //Chain run synchronous and get result on completed
                         var stopwatch = Stopwatch.StartNew();
-                        var syncChaing = CreateChain(31, count);
+                        var syncChaing = CreateChain(1, count);
                         var res = syncChaing.RunSync();
                         stopwatch.Stop();
                         Console.WriteLine($"Total time: {stopwatch.ElapsedMilliseconds}");
