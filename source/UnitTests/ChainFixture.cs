@@ -91,6 +91,8 @@ namespace UnitTests
             MockActionInvoker.Invocations.Clear();
             MockCompleted.Invocations.Clear();
 
+            MockActionInvoker.Setup(p => p.Invoke(It.IsAny<CancellationToken>())).ReturnsAsync(Guid.NewGuid());
+
             DispatcherToken.Chain()
                 .Post(MockActionInvoker.Object)
                 .Post(MockActionInvoker.Object)
