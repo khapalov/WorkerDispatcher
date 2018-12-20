@@ -11,7 +11,7 @@ namespace ChainApp
     {
         static IDispatcherToken DisaptcherToken;
 
-        static async Task Execute(string sel)
+        static async Task Execute(string sel, int count)
         {
             await Task.Yield();
 
@@ -24,7 +24,7 @@ namespace ChainApp
                 case "complete":
                     {
                         //Chain with run CompleteWorker on completed
-                        var completedChain = CreateChain(1, 10);
+                        var completedChain = CreateChain(1, count);
                         completedChain.Run(new CompletedWorker());
 
                         break;
@@ -32,7 +32,7 @@ namespace ChainApp
                 case "callback":
                     {
                         //Chain with callback on completed
-                        var callbackChain = CreateChain(11, 10);
+                        var callbackChain = CreateChain(11, count);
                         callbackChain.Run(async p =>
                         {
                             await Task.Yield();
@@ -45,7 +45,7 @@ namespace ChainApp
                 case "async":
                     {
                         //Chain with async task
-                        var asyncChaing = CreateChain(21, 10);
+                        var asyncChaing = CreateChain(21, count);
                         await asyncChaing.RunAsync().ContinueWith(t =>
                         {
                             if (!t.IsFaulted)
@@ -60,7 +60,7 @@ namespace ChainApp
                     {
                         //Chain run synchronous and result on completed
                         var stopwatch = Stopwatch.StartNew();
-                        var syncChaing = CreateChain(31, 10);
+                        var syncChaing = CreateChain(31, count);
                         var res = syncChaing.RunSync();
                         stopwatch.Stop();
                         Console.WriteLine($"Total time: {stopwatch.ElapsedMilliseconds}");
@@ -81,7 +81,7 @@ namespace ChainApp
                 Timeout = TimeSpan.FromSeconds(1)
             });
 
-            Execute(args.Length > 0 ? args[0] : default(string)).Wait();
+            Execute(args.Length > 0 ? args[0] : default(string), args.Length > 1 ? int.Parse(args[1]) : 10).Wait();
 
             Console.ReadKey();
 
