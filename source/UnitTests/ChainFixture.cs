@@ -102,8 +102,6 @@ namespace UnitTests
         [Test]
         public void should_be_invoke_callback()
         {
-            Task.Delay(100).Wait();
-
             DispatcherToken.WaitCompleted();
 
             MockCompleted.Verify(p => p.Invoke(It.IsAny<WorkerCompletedData>(), It.IsAny<CancellationToken>()), Times.Once);

@@ -83,7 +83,7 @@ namespace ChainApp
 
             Execute(args.Length > 0 ? args[0] : default(string), args.Length > 1 ? int.Parse(args[1]) : 10).Wait();
 
-            Console.ReadKey();
+            //Console.ReadKey();
 
             Console.WriteLine("await stop");
             DisaptcherToken.WaitCompleted(120);

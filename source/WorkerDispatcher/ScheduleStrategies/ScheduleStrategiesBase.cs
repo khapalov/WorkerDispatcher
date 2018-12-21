@@ -26,7 +26,7 @@ namespace WorkerDispatcher.ScheduleStrategies
 
         protected virtual IWorkerRunner CreateWorkerRunner(ICounterBlocked counterBlocked, IWorkerHandler workerHandler, TimeSpan timeLimit)
         {
-            return new DefaultWorkerRunner(_processCount, workerHandler, timeLimit);
+            return new DefaultWorkerRunner(_processCount, workerHandler, timeLimit, _queueWorker);
         }
 
         public void Start(CancellationToken cancellationToken)

@@ -22,18 +22,11 @@ namespace WorkerDispatcher
             _rwLock = new ReaderWriterLockSlim();
         }
 
-		public int Count
-		{
-			get { return _queue.Count; }
-		}
+        public int Count => _queue.Count;
 
-		public bool IsCompleted
-		{
-			get
-			{
-				return _isCompleted && _queue.IsEmpty;
-			}
-		}
+        public bool IsCompleted => _isCompleted && _queue.IsEmpty;
+
+        public bool IsEmpty => _queue.IsEmpty;
 
         public void Post(TData data)
         {

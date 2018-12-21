@@ -11,12 +11,14 @@ namespace WorkerDispatcher
         private readonly ICounterBlocked _counterBlocked;
         private readonly IWorkerHandler _workerHandler;
         private readonly TimeSpan _timeLimit;
+        private readonly IWorkerNotify _queueWorker;
 
-        public DefaultWorkerRunner(ICounterBlocked counterBlocked, IWorkerHandler workerHandler, TimeSpan timeLimit)
+        public DefaultWorkerRunner(ICounterBlocked counterBlocked, IWorkerHandler workerHandler, TimeSpan timeLimit, IWorkerNotify queueWorker)
         {
             _counterBlocked = counterBlocked;
             _workerHandler = workerHandler;
             _timeLimit = timeLimit;
+            _queueWorker = queueWorker;
         }
 
         public async Task ExcecuteInvoker(IActionInvoker actionInvoker)
@@ -48,6 +50,7 @@ namespace WorkerDispatcher
             finally
             {
                 _counterBlocked.Decremenet();
+                _queueWorker.SetWorkerEnd();
                 tokenSource.Dispose();
             }
 
