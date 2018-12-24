@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using WorkerDispatcher.Report;
 using WorkerDispatcher.Workers;
 
 namespace WorkerDispatcher

@@ -15,9 +15,9 @@ namespace ChainApp
         {
             await Task.Yield();
 
-            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;            
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
-            var select = sel ?? "complete";
+            var select = sel ?? "callback";
 
             switch (select)
             {
@@ -78,17 +78,19 @@ namespace ChainApp
             DisaptcherToken = factory.Start(new ActionDispatcherSettings
             {
                 Schedule = ScheduleType.Parallel,
-                Timeout = TimeSpan.FromSeconds(1)
+                Timeout = TimeSpan.FromSeconds(2)
             });
 
             Execute(args.Length > 0 ? args[0] : default(string), args.Length > 1 ? int.Parse(args[1]) : 10).Wait();
 
-            //Console.ReadKey();
+            if (args[0] == "complete")
+                Console.ReadKey();
 
             Console.WriteLine("await stop");
             DisaptcherToken.WaitCompleted(120);
             DisaptcherToken.Dispose();
-            Console.WriteLine("stopped success");            
+            Console.WriteLine("stopped success");
+            Console.ReadKey();
         }
 
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
@@ -116,6 +118,7 @@ namespace ChainApp
             for (var i = start; i < len; i++)
             {
                 chain.Post(new WorkerToLong(), i);
+                //chain.Post(new Worker(), i);
             }
 
             return chain;
@@ -176,9 +179,7 @@ namespace ChainApp
                 Console.WriteLine($"Data: {data.Data}, Duration:{data.Duration} Result: {data.Result?.ToString()}, IsError: {data.IsError}, IsCancelled: {data.IsCancelled}");
             }
 
-            var totalDuration = completed.Results.Sum(p => p.Duration);
-
-            return $"Ok, TotalDuration {totalDuration}";
+            return $"Ok, TotalCount { completed.Results.Length}";
         }
     }
 
