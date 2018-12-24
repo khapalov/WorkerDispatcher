@@ -52,15 +52,25 @@ namespace WorkerDispatcher
 
             var progressDatas = new WorkerProgressData[arr.Length];
 
-            using (var progress = new WorkerProgressReportSync(progressDatas))
+            var result = default(WorkerCompletedData);
+
+            using (var sync = new ManualResetEventSlim(false))
             {
+                var progress = new WorkerProgressReportCallback(progressDatas, data =>
+                {
+                    result = data;
+                    sync.Set();
+                });
+
                 for (var i = 0; i < arr.Length; i++)
                 {
                     _sender.Post(new InternalWorkerProgress(arr[i], progress, i));
                 }
 
-                return progress.WaitReady();
+                sync.Wait();
             }
+
+            return result;
         }
 
         public Task<WorkerCompletedData> RunAsync()

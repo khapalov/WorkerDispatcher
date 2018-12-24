@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkerDispatcher;
@@ -15,11 +16,9 @@ namespace ChainApp
         {
             await Task.Yield();
 
-            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;            
 
-            var select = sel ?? "callback";
-
-            switch (select)
+            switch (sel)
             {
                 case "complete":
                     {
@@ -68,6 +67,16 @@ namespace ChainApp
 
                         break;
                     }
+                case "pages":
+                    {
+                        DisaptcherToken.Post(new FindPagesWorker(DisaptcherToken, new string[] {
+                            "https://raw.githubusercontent.com/NemoTravel/nemo.travel.geodata/master/airlines.json",
+                            "https://raw.githubusercontent.com/NemoTravel/nemo.travel.geodata/master/countries.json",
+                            "https://raw.githubusercontent.com/NemoTravel/nemo.travel.geodata/master/airports.json"
+                        }));
+
+                        break;
+                    }
             }
         }
 
@@ -81,9 +90,11 @@ namespace ChainApp
                 Timeout = TimeSpan.FromSeconds(2)
             });
 
-            Execute(args.Length > 0 ? args[0] : default(string), args.Length > 1 ? int.Parse(args[1]) : 10).Wait();
+            var select = args.Length > 0 ? args[0] : default(string) ?? "pages";
 
-            if (args[0] == "complete")
+            Execute(select, args.Length > 1 ? int.Parse(args[1]) : 10).Wait();
+
+            if (select == "complete" || select == "pages")
                 Console.ReadKey();
 
             Console.WriteLine("await stop");
@@ -118,7 +129,6 @@ namespace ChainApp
             for (var i = start; i < len; i++)
             {
                 chain.Post(new WorkerToLong(), i);
-                //chain.Post(new Worker(), i);
             }
 
             return chain;
@@ -212,6 +222,51 @@ namespace ChainApp
             }
 
             return $"i={data}";
+        }
+    }
+
+    internal class FindPagesWorker : IActionInvoker
+    {
+        private readonly IDispatcherTokenSender _sender;
+        private readonly string[] _data;
+
+        public FindPagesWorker(IDispatcherTokenSender sender, string[] data)
+        {
+            _sender = sender;
+            _data = data;
+        }
+
+        public async Task<object> Invoke(CancellationToken token)
+        {
+            await Task.Yield();
+
+            var chain = _sender.Chain();
+            foreach (var item in _data)
+            {
+                chain.Post(new DownloadWorker(), item);
+            }
+
+            var result = await chain.RunAsync();
+
+            foreach (var item in result.Results)
+            {
+                Console.WriteLine($"Url: {item.Data}, Duration: {item.Duration}, \r\nResult:{item.Result?.ToString().Substring(0, 400)}");
+            }         
+
+            return $"Count: {result.Results?.Length}";
+        }
+
+        internal class DownloadWorker : IActionInvoker<string>
+        {
+            public async Task<object> Invoke(string url, CancellationToken token)
+            {
+                using (var http = new HttpClient())
+                {
+                    var content = await http.GetAsync(url, token);
+
+                    return await content.Content.ReadAsStringAsync();
+                }
+            }
         }
     }
 }
