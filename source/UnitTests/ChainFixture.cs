@@ -91,8 +91,6 @@ namespace UnitTests
             MockActionInvoker.Invocations.Clear();
             MockCompleted.Invocations.Clear();
 
-            MockActionInvoker.Setup(p => p.Invoke(It.IsAny<CancellationToken>())).ReturnsAsync(Guid.NewGuid());
-
             DispatcherToken.Chain()
                 .Post(MockActionInvoker.Object)
                 .Post(MockActionInvoker.Object)
@@ -231,7 +229,7 @@ namespace UnitTests
 
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Results);
-            Assert.NotNull(result.Results.Single(p => p.IsError));
+            Assert.NotNull(result.Results.Single(p => p.IsError && p.Error != null));
             Assert.IsTrue(result.Results.Any(p => !p.IsError));
 
             DispatcherToken.WaitCompleted();
@@ -244,7 +242,7 @@ namespace UnitTests
 
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Results);
-            Assert.NotNull(result.Results.Single(p => p.IsError));
+            Assert.NotNull(result.Results.Single(p => p.IsError && p.Error != null));
             Assert.IsTrue(result.Results.Any(p => !p.IsError));
 
             DispatcherToken.WaitCompleted();

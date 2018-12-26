@@ -44,7 +44,7 @@ namespace WorkerDispatcher.Workers
                     Data = workerData
                 });
             }
-            catch (TaskCanceledException)
+            catch (TaskCanceledException ex)
             {
                 stopwatch.Stop();
 
@@ -54,12 +54,13 @@ namespace WorkerDispatcher.Workers
                     Index = _index,
                     IsError = true,
                     IsCancelled = true,
-                    Data = workerData
+                    Data = workerData,
+                    Error = ex
                 });
 
                 throw;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 stopwatch.Stop();
 
@@ -68,7 +69,8 @@ namespace WorkerDispatcher.Workers
                     Duration = stopwatch.ElapsedMilliseconds,
                     Index = _index,
                     IsError = true,
-                    Data = workerData
+                    Data = workerData,
+                    Error = ex
                 });
 
                 throw;

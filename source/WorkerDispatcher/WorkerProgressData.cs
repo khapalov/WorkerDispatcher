@@ -17,5 +17,7 @@ namespace WorkerDispatcher
         public object Result { get; set; }
 
         public object Data { get; set; }
+
+        public Exception Error { get; set; }
     }
 }

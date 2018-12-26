@@ -86,9 +86,7 @@ namespace UnitTests
 			DispatcherToken = Factory.Start(new ActionDispatcherSettings
 			{
 				Timeout = TimeSpan.FromSeconds(1)
-			});
-
-            MockActionInvoker.Setup(p => p.Invoke(It.IsAny<CancellationToken>())).ReturnsAsync(Guid.NewGuid());
+			});            
 
             DispatcherToken.Post(MockActionInvoker.Object);
 			DispatcherToken.Post(p => throw new ArgumentException());
