@@ -45,6 +45,12 @@ namespace UnitTests
             DispatcherToken.Chain()
                 .Post(MockActionInvoker.Object)
                 .Post(MockActionInvoker.Object)
+                .Post(MockActionInvoker.Object)
+                .Post(MockActionInvoker.Object)
+                .Post(MockActionInvoker.Object)
+                .Post(MockActionInvoker.Object)
+                .Post(MockActionInvoker.Object)
+                .Post(MockActionInvoker.Object)
                 .Run(MockCompleted.Object);
         }
 
@@ -52,9 +58,9 @@ namespace UnitTests
         public void should_be_invoke_completed()
         {
             //await when worker complete is execute
-            Task.Delay(50).Wait();
+            //Task.Delay(50).Wait();
 
-            DispatcherToken.WaitCompleted();
+            DispatcherToken.WaitCompleted(5);
 
             MockCompleted.Verify(p => p.Invoke(It.IsAny<WorkerCompletedData>(), It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -63,11 +69,11 @@ namespace UnitTests
         public void should_be_invoke_chain_workers()
         {
             //await when worker complete is execute
-            Task.Delay(50).Wait();
+            //Task.Delay(50).Wait();
 
             DispatcherToken.WaitCompleted();
 
-            MockActionInvoker.Verify(p => p.Invoke(It.IsAny<CancellationToken>()), Times.Exactly(2));
+            MockActionInvoker.Verify(p => p.Invoke(It.IsAny<CancellationToken>()), Times.Exactly(8));
         }
     }
 

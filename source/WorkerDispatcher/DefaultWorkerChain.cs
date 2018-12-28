@@ -11,22 +11,26 @@ namespace WorkerDispatcher
     internal class DefaultWorkerChain : IWorkerChain
     {
         private readonly IQueueWorker _queueWorker;
+        private readonly ICounterBlocked _counterBlocked;
         private readonly ConcurrentQueue<IActionInvoker> _workerChainDefaults;
 
-        public DefaultWorkerChain(IQueueWorker queueWorker)
+        public DefaultWorkerChain(IQueueWorker queueWorker, ICounterBlocked counterBloaked)
         {
             _queueWorker = queueWorker;
-            _workerChainDefaults = new ConcurrentQueue<IActionInvoker>();
+            _counterBlocked = counterBloaked;
+            _workerChainDefaults = new ConcurrentQueue<IActionInvoker>();            
         }
 
         public void Run(IActionInvoker<WorkerCompletedData> compeltedInvoker)
         {
             IActionInvoker[] arr = ExtractArrray();
 
-            var progressDatas = new WorkerProgressData[arr.Length];
+            var progressDatas = new WorkerProgressData[arr.Length];            
 
-            var progress = new WorkerProgressReportCompleted(_queueWorker, progressDatas, compeltedInvoker);
+            var invokerSync = new InternalWorkerDataSync<WorkerCompletedData>(compeltedInvoker, _counterBlocked);
 
+            var progress = new WorkerProgressReportCompleted(_queueWorker, progressDatas, invokerSync);
+            
             var actionInvokers = arr.Select((p, i) => new InternalWorkerProgress(p, progress, i)).ToArray();
             
             _queueWorker.PostBulk(actionInvokers);
@@ -107,7 +111,7 @@ namespace WorkerDispatcher
 
         public IWorkerChain Chain()
         {
-            return new DefaultWorkerChain(_queueWorker);
+            return new DefaultWorkerChain(_queueWorker, _counterBlocked);
         }
 
         public IWorkerChain Post(IActionInvoker actionInvoker)

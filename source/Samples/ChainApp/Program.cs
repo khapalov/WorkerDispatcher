@@ -17,7 +17,7 @@ namespace ChainApp
             await Task.Yield();
 
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;            
-
+            
             switch (sel)
             {
                 case "complete":
@@ -32,11 +32,12 @@ namespace ChainApp
                     {
                         //Chain with call callback on completed
                         var callbackChain = CreateChain(1, count);
-                        callbackChain.Run(async p =>
+                        callbackChain.Run(p =>
                         {
-                            await Task.Yield();
+                            //await Task.Yield();
 
-                            var cpl = await new CompletedWorker().Invoke(p, CancellationToken.None);
+                            var cpl = new CompletedWorker().Invoke(p, CancellationToken.None);
+                            cpl.Wait();
                         });
 
                         break;
@@ -90,18 +91,18 @@ namespace ChainApp
                 Timeout = TimeSpan.FromSeconds(2)
             });
 
-            var select = args.Length > 0 ? args[0] : default(string) ?? "pages";
+            var select = args.Length > 0 ? args[0] : default(string) ?? "complete";
 
-            Execute(select, args.Length > 1 ? int.Parse(args[1]) : 10).Wait();
+            Execute(select, args.Length > 1 ? int.Parse(args[1]) : 100).Wait();
 
-            if (select == "complete" || select == "pages")
+            if (select == "pages")
                 Console.ReadKey();
 
             Console.WriteLine("await stop");
             DisaptcherToken.WaitCompleted(120);
             DisaptcherToken.Dispose();
             Console.WriteLine("stopped success");
-            Console.ReadKey();
+            //Console.ReadKey();
         }
 
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e)

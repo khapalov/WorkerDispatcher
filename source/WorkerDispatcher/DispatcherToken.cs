@@ -13,6 +13,7 @@ namespace WorkerDispatcher
         private readonly ICounterBlocked _processCount;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly ActionDispatcherSettings _actionDispatcherSettings;
+        private readonly ICounterBlocked _chainCounterBlocked;
 
         internal DispatcherToken(ICounterBlocked counterProcess,
             IQueueWorker queueWorker,
@@ -20,6 +21,8 @@ namespace WorkerDispatcher
             CancellationTokenSource cancellationTokenSource)
         {
             _processCount = counterProcess;
+
+            _chainCounterBlocked = new CounterBlocked();
 
             _queueWorker = queueWorker;
 
@@ -76,7 +79,7 @@ namespace WorkerDispatcher
 
         public IWorkerChain Chain()
         {
-            return new DefaultWorkerChain(_queueWorker);
+            return new DefaultWorkerChain(_queueWorker, _chainCounterBlocked);
         }
 
         public async Task Stop(int timeoutSeconds = 60)
@@ -88,6 +91,8 @@ namespace WorkerDispatcher
 
         public void WaitCompleted(int timeoutSeconds = 60)
         {
+            _chainCounterBlocked.Wait(timeoutSeconds);
+
             _queueWorker.Complete();
 
             _cancellationTokenSource.Cancel();
