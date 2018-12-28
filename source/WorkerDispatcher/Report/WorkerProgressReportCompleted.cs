@@ -1,26 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using WorkerDispatcher.Workers;
 
 namespace WorkerDispatcher.Report
 {
     internal class WorkerProgressReportCompleted : WorkerProgressReportBase
     {
         private readonly IActionInvoker<WorkerCompletedData> _actionInvoker;
-        private readonly IDispatcherTokenSender _sender;
+        private readonly IQueueWorker _queueWorker;
 
-        public WorkerProgressReportCompleted(IDispatcherTokenSender sender, 
+        public WorkerProgressReportCompleted(IQueueWorker sender, 
             WorkerProgressData[] datas, 
             IActionInvoker<WorkerCompletedData> actionInvoker) 
             : base(datas)
         {
-            _sender = sender;
+            _queueWorker = sender;
             _actionInvoker = actionInvoker;
         }
 
         protected override void OnComplete(WorkerCompletedData datas)
         {
-            _sender.Post(_actionInvoker, datas);
+            var worker = new InternalWorkerValue<WorkerCompletedData>(_actionInvoker, datas);
+
+            _queueWorker.Post(worker);
         }
     }    
 }

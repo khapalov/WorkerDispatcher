@@ -21,7 +21,12 @@ namespace WorkerDispatcher.Workers
 		{
 			return await _actionInvoker.Invoke(_data, token);
 		}
-	}
+
+        public override string ToString()
+        {
+            return _actionInvoker.ToString();
+        }
+    }
 
     internal interface IActionInvokerData
     {

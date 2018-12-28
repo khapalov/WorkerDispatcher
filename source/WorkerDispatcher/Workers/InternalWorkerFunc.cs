@@ -19,5 +19,10 @@ namespace WorkerDispatcher.Workers
 
             return null;
         }
+
+        public override string ToString()
+        {
+            return _fn.ToString();
+        }
     }
 }

@@ -28,30 +28,11 @@ namespace WorkerDispatcher
             _actionDispatcherSettings = actionDispatcherSettings;
         }
 
-        public int ProcessCount
-        {
-            get
-            {
-                return _processCount.Count;
-            }
-        }
+        public int ProcessCount => _processCount.Count;
 
-        public int ProcessLimit
-        {
-            get
-            {
-                return _actionDispatcherSettings.PrefetchCount;
-            }
-        }
+        public int ProcessLimit => _actionDispatcherSettings.PrefetchCount;
 
-        public int QueueProcessCount
-        {
-            get
-            {
-                return _queueWorker.Count;
-            }
-        }
-
+        public int QueueProcessCount => _queueWorker.Count;
 
         public void Post(IActionInvoker actionInvoker)
         {
@@ -95,7 +76,7 @@ namespace WorkerDispatcher
 
         public IWorkerChain Chain()
         {
-            return new DefaultWorkerChain(this);
+            return new DefaultWorkerChain(_queueWorker);
         }
 
         public async Task Stop(int timeoutSeconds = 60)

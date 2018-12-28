@@ -22,6 +22,7 @@ namespace UnitTests
 
         public ChainFixture()
         {
+            MockActionInvoker.Setup(p => p.Invoke(It.IsAny<CancellationToken>())).ReturnsAsync(Guid.NewGuid().ToString());
             Factory = new ActionDispatcherFactory(MockWorkerHandler.Object);
         }
     }
@@ -183,6 +184,7 @@ namespace UnitTests
             Assert.IsNotNull(result);
             Assert.IsNotNull(result.Results);
             Assert.IsTrue(result.Results.All(p => !p.IsError));
+            Assert.IsTrue(result.Results.All(p => p.Result != null));
 
             DispatcherToken.WaitCompleted();
         }

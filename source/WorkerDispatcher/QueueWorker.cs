@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,6 +30,22 @@ namespace WorkerDispatcher
 		{
 			_queue.Post(actionInvoker);
 		}
+
+        public void PostBulk(IActionInvoker[] actionInvokers)
+        {
+            if(actionInvokers == null)
+            {
+                throw new ArgumentNullException($"nameof{actionInvokers}");
+            }
+
+            using (var enterPost = _queue.EnterPost())
+            {
+                foreach (var item in actionInvokers)
+                {
+                    Post(item);
+                }
+            }
+        }
 
 		public async Task<IActionInvoker> ReceiveAsync()
 		{

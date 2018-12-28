@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkerDispatcher.Report;
@@ -9,12 +10,12 @@ namespace WorkerDispatcher
 {
     internal class DefaultWorkerChain : IWorkerChain
     {
-        private readonly IDispatcherTokenSender _sender;
+        private readonly IQueueWorker _queueWorker;
         private readonly ConcurrentQueue<IActionInvoker> _workerChainDefaults;
 
-        public DefaultWorkerChain(IDispatcherTokenSender sender)
+        public DefaultWorkerChain(IQueueWorker queueWorker)
         {
-            _sender = sender;
+            _queueWorker = queueWorker;
             _workerChainDefaults = new ConcurrentQueue<IActionInvoker>();
         }
 
@@ -24,12 +25,11 @@ namespace WorkerDispatcher
 
             var progressDatas = new WorkerProgressData[arr.Length];
 
-            var progress = new WorkerProgressReportCompleted(_sender, progressDatas, compeltedInvoker);
+            var progress = new WorkerProgressReportCompleted(_queueWorker, progressDatas, compeltedInvoker);
 
-            for (var i = 0; i < arr.Length; i++)
-            {
-                _sender.Post(new InternalWorkerProgress(arr[i], progress, i));
-            }
+            var actionInvokers = arr.Select((p, i) => new InternalWorkerProgress(p, progress, i)).ToArray();
+            
+            _queueWorker.PostBulk(actionInvokers);
         }
 
         public void Run(Action<WorkerCompletedData> fn)
@@ -40,10 +40,9 @@ namespace WorkerDispatcher
 
             var progress = new WorkerProgressReportCallback(progressDatas, fn);
 
-            for (var i = 0; i < arr.Length; i++)
-            {
-                _sender.Post(new InternalWorkerProgress(arr[i], progress, i));
-            }
+            var actionInvokers = arr.Select((p, i) => new InternalWorkerProgress(p, progress, i)).ToArray();
+
+            _queueWorker.PostBulk(actionInvokers);
         }
 
         public WorkerCompletedData RunSync()
@@ -62,10 +61,9 @@ namespace WorkerDispatcher
                     sync.Set();
                 });
 
-                for (var i = 0; i < arr.Length; i++)
-                {
-                    _sender.Post(new InternalWorkerProgress(arr[i], progress, i));
-                }
+                var actionInvokers = arr.Select((p, i) => new InternalWorkerProgress(p, progress, i)).ToArray();
+
+                _queueWorker.PostBulk(actionInvokers);
 
                 sync.Wait();
             }
@@ -109,7 +107,7 @@ namespace WorkerDispatcher
 
         public IWorkerChain Chain()
         {
-            return new DefaultWorkerChain(_sender);
+            return new DefaultWorkerChain(_queueWorker);
         }
 
         public IWorkerChain Post(IActionInvoker actionInvoker)

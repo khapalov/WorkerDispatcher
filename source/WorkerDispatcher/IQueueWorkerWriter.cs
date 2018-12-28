@@ -8,6 +8,8 @@ namespace WorkerDispatcher
     {
         void Post(IActionInvoker actionInvoker);
 
+        void PostBulk(IActionInvoker[] actionInvokers);
+
         void Complete();
     }
 }

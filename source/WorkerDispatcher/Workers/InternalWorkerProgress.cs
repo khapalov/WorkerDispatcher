@@ -78,5 +78,10 @@ namespace WorkerDispatcher.Workers
 
             return result;
         }
+
+        public override string ToString()
+        {
+            return _actionInvoker.ToString();
+        }
     }
 }
