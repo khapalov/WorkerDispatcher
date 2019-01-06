@@ -15,16 +15,20 @@ namespace WorkerDispatcher
         public ActionDispatcherFactory()
             : this(new DefaultWorkerHandler())
         { }
-
-        public IDispatcherToken Start(ActionDispatcherSettings config)
+        
+        public IDispatcherToken Start(ActionDispatcherSettings config = null)
         {
+            config = config ?? new ActionDispatcherSettings();
+
             var processCount = new CounterBlocked();
 
             var queueWorker = new QueueWorker();
 
             var cancellationTokenSource = new CancellationTokenSource();
 
-			var dispatcherToken = new DispatcherToken(processCount, queueWorker, config, cancellationTokenSource);
+            var chainCounterBlocked = new CounterBlocked();
+
+            var dispatcherToken = new DispatcherToken(processCount, queueWorker, config, cancellationTokenSource, chainCounterBlocked);
 
             var schedule = config.BuildSchedule(queueWorker, processCount, _handler);
 

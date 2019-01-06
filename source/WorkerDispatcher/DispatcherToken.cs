@@ -18,11 +18,12 @@ namespace WorkerDispatcher
         internal DispatcherToken(ICounterBlocked counterProcess,
             IQueueWorker queueWorker,
             ActionDispatcherSettings actionDispatcherSettings,
-            CancellationTokenSource cancellationTokenSource)
+            CancellationTokenSource cancellationTokenSource,
+            ICounterBlocked chainCounterBlocked)
         {
             _processCount = counterProcess;
 
-            _chainCounterBlocked = new CounterBlocked();
+            _chainCounterBlocked = chainCounterBlocked;
 
             _queueWorker = queueWorker;
 
@@ -91,7 +92,9 @@ namespace WorkerDispatcher
 
         public void WaitCompleted(int timeoutSeconds = 60)
         {
-            _chainCounterBlocked.Wait(timeoutSeconds);
+            var sec = new TimeSpan(0, 0, timeoutSeconds);
+
+            _chainCounterBlocked.Wait((int)sec.TotalMilliseconds);
 
             _queueWorker.Complete();
 
@@ -132,11 +135,13 @@ namespace WorkerDispatcher
                 {
                     _cancellationTokenSource.Cancel();
 
-                    ((IDisposable)_queueWorker).Dispose();
+                    _queueWorker.Dispose();
 
                     _cancellationTokenSource.Dispose();
 
                     _processCount.Dispose();
+
+                    _chainCounterBlocked.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.

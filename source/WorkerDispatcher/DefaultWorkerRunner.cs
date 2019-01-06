@@ -23,35 +23,36 @@ namespace WorkerDispatcher
 
         public async Task ExcecuteInvoker(IActionInvoker actionInvoker)
         {
-            var tokenSource = new CancellationTokenSource();
-
-            try
+            using (var tokenSource = new CancellationTokenSource())
             {
                 _counterBlocked.Increment();
+
+                try
+                {
 #if DEBUG
-                Trace.WriteLine(String.Format("start process count = {0}", _counterBlocked.Count));
+                    Trace.WriteLine(String.Format("start process count = {0}", _counterBlocked.Count));
 #endif
 
-				if (actionInvoker is IActionInvokerLifetime invokerTimeLimit)
-				{
-					tokenSource.CancelAfter(invokerTimeLimit.Lifetime);
-				}
-				else
-				{
-					tokenSource.CancelAfter(_timeLimit);
-				}
-				
-				await ProcessMessage(actionInvoker, tokenSource.Token);
-            }
-            catch (Exception ex)
-            {
-                _workerHandler.HandleFault(ex);
-            }
-            finally
-            {
-                _counterBlocked.Decremenet();
-                _queueWorker.SetWorkerEnd();
-                tokenSource.Dispose();
+                    if (actionInvoker is IActionInvokerLifetime invokerTimeLimit)
+                    {
+                        tokenSource.CancelAfter(invokerTimeLimit.Lifetime);
+                    }
+                    else
+                    {
+                        tokenSource.CancelAfter(_timeLimit);
+                    }
+
+                    await ProcessMessage(actionInvoker, tokenSource.Token);
+                }
+                catch (Exception ex)
+                {
+                    _workerHandler.HandleFault(ex);
+                }
+                finally
+                {
+                    _counterBlocked.Decremenet();
+                    _queueWorker.SetWorkerEnd();
+                }
             }
 
 #if DEBUG
