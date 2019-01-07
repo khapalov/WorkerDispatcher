@@ -57,10 +57,7 @@ namespace UnitTests
         [Test]
         public void should_be_invoke_completed()
         {
-            //await when worker complete is execute
-            //Task.Delay(50).Wait();
-
-            DispatcherToken.WaitCompleted(5);
+            DispatcherToken.WaitCompleted();
 
             MockCompleted.Verify(p => p.Invoke(It.IsAny<WorkerCompletedData>(), It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -68,9 +65,6 @@ namespace UnitTests
         [Test]
         public void should_be_invoke_chain_workers()
         {
-            //await when worker complete is execute
-            //Task.Delay(50).Wait();
-
             DispatcherToken.WaitCompleted();
 
             MockActionInvoker.Verify(p => p.Invoke(It.IsAny<CancellationToken>()), Times.Exactly(8));

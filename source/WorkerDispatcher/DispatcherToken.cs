@@ -13,7 +13,7 @@ namespace WorkerDispatcher
         private readonly ICounterBlocked _processCount;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly ActionDispatcherSettings _actionDispatcherSettings;
-        private readonly ICounterBlocked _chainCounterBlocked;
+        private readonly ICounterBlocked _chainCounter;
 
         internal DispatcherToken(ICounterBlocked counterProcess,
             IQueueWorker queueWorker,
@@ -23,7 +23,7 @@ namespace WorkerDispatcher
         {
             _processCount = counterProcess;
 
-            _chainCounterBlocked = chainCounterBlocked;
+            _chainCounter = chainCounterBlocked;
 
             _queueWorker = queueWorker;
 
@@ -80,7 +80,7 @@ namespace WorkerDispatcher
 
         public IWorkerChain Chain()
         {
-            return new DefaultWorkerChain(_queueWorker, _chainCounterBlocked);
+            return new DefaultWorkerChain(_queueWorker, _chainCounter);
         }
 
         public async Task Stop(int timeoutSeconds = 60)
@@ -92,15 +92,19 @@ namespace WorkerDispatcher
 
         public void WaitCompleted(int timeoutSeconds = 60)
         {
-            var sec = new TimeSpan(0, 0, timeoutSeconds);
+            var chainSec = new TimeSpan(0, 0, timeoutSeconds);
+            var chainLimitTime = new TimeSpan(DateTime.Now.Add(chainSec).Ticks);
 
-            _chainCounterBlocked.Wait((int)sec.TotalMilliseconds);
+            _chainCounter.Wait((int)chainSec.TotalMilliseconds);
 
             _queueWorker.Complete();
 
             _cancellationTokenSource.Cancel();
 
-            var timeout = new TimeSpan(0, 0, timeoutSeconds);
+            var chainCurrentTime = new TimeSpan(DateTime.Now.Ticks);
+            var chainDelta = chainLimitTime - chainCurrentTime;
+
+            var timeout = new TimeSpan(0, 0, chainDelta <= TimeSpan.Zero ? 1 : (int)chainDelta.TotalMilliseconds);
 
             var limitTime = new TimeSpan(DateTime.Now.Add(timeout).Ticks);
 
@@ -141,7 +145,7 @@ namespace WorkerDispatcher
 
                     _processCount.Dispose();
 
-                    _chainCounterBlocked.Dispose();
+                    _chainCounter.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.

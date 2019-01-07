@@ -55,7 +55,7 @@ dispatcherToken.Chain()
     });
 ```
 
-#### Stop receive new worker and wait for the rest, default 30 second
+#### Stop receive new worker and wait for the rest, default 60 second
 ```csharp
 dispatcherToken.WaitCompleted();
 ```

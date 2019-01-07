@@ -7,14 +7,12 @@ namespace WorkerDispatcher
 {
     internal class CounterBlocked : ICounterBlocked
     {
-		private volatile bool _stop = false;
-        private int _count = 0;
-		private readonly ManualResetEvent _state = new ManualResetEvent(false);
+        private readonly ManualResetEvent _state = new ManualResetEvent(false);
+        private volatile int _count = 0;
 
-		public int Count
-        {
-            get { return _count; }
-        }
+        public bool StopSignal { get; private set; } = false;
+
+        public int Count => _count;
 
         public void Increment()
         {
@@ -24,7 +22,7 @@ namespace WorkerDispatcher
         public void Decremenet()
         {
             Interlocked.Decrement(ref _count);
-			if (_stop && _count == 0)
+			if (StopSignal && _count == 0)
 			{
 				SetCompleted();
 			}
@@ -32,7 +30,7 @@ namespace WorkerDispatcher
 
 		public void Wait(int millisecondsTimeout)
 		{
-			_stop = true;
+			StopSignal = true;
 
 			if (_count == 0)
 			{

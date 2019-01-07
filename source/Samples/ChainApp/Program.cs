@@ -129,7 +129,7 @@ namespace ChainApp
             var len = start + count;
             for (var i = start; i < len; i++)
             {
-                chain.Post(new WorkerToLong(), i);
+                chain.Post(new Worker2(DisaptcherToken), i);
             }
 
             return chain;
@@ -174,6 +174,28 @@ namespace ChainApp
         public async Task<object> Invoke(int data, CancellationToken token)
         {
             await Task.Delay(1000, token);
+
+            return $"i={data}";
+        }
+    }
+
+    internal class Worker2 : IActionInvoker<int>
+    {
+        private readonly IDispatcherToken _sender;
+
+        public Worker2(IDispatcherToken sender)
+        {
+            _sender = sender;
+        }
+
+        public async Task<object> Invoke(int data, CancellationToken token)
+        {
+            await Task.Delay(1000, token);
+
+            _sender.Chain().Post(new Worker(), data).Run(res =>
+            {
+                Console.WriteLine($"chain res={res.Results[0].Result}");
+            });
 
             return $"i={data}";
         }
