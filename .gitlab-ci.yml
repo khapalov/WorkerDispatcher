@@ -29,6 +29,6 @@ deploy:
         - "pwd"
         - "dotnet build -c Release"     
         - "pwd"
-        - "dotnet nuget push ../build/*.nuget -k $WD_Nuget_Key -s https://api.nuget.org/v3/index.json"
+        - "dotnet nuget push ../build/Release/*.nupkg -k $WD_Nuget_Key -s https://api.nuget.org/v3/index.json"
     only:
         - master
