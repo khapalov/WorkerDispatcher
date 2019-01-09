@@ -26,7 +26,7 @@ test:
 deploy:
     stage: deploy
     script:
-        - "pwd"
+        - "dotnet restore"
         - "dotnet build -c Release"     
         - "cd ../build/Release"
         - "ls"
