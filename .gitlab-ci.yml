@@ -26,8 +26,9 @@ test:
 deploy:
     stage: deploy
     script:
-        - "dotnet build -c Release"
-        - "dotnet pack -c Release"
+        - "pwd"
+        - "dotnet build -c Release"     
+        - "pwd"
         - "dotnet nuget push ../build/*.nuget -k $WD_Nuget_Key -s https://api.nuget.org/v3/index.json"
     only:
         - master
