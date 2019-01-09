@@ -3,6 +3,7 @@ image: microsoft/dotnet:latest
 stages:
     - build
     - test
+    - deploy    
 
 variables:
     test: "UnitTests"
@@ -21,3 +22,11 @@ test:
     script: 
         - "cd $test"
         - "dotnet test"
+
+deploy:
+    stage: deploy
+    script:
+        - "dotnet pack -c Release"
+        - "dotnet nuget push ../build/*.nuget -k $WD_Nuget_Key -s https://api.nuget.org/v3/index.json"
+only:
+   - master

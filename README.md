@@ -47,15 +47,16 @@ Chain result available through, callback, synchronously, asynchronously, or call
 
 ```csharp
 dispatcherToken.Chain()
-	.Post(new MyDataWorker(), new MyTData())
-    .Post(new MyDataWorker(), new MyTData(), TimeSpan.FromSecond(10));
-    .Run(res =>
-    {
-    	//all worker result in "res"
-    });
+.Post(new MyDataWorker(), new MyTData())
+.Post(new MyDataWorker(), new MyTData(), TimeSpan.FromSecond(10));
+.Run(res =>
+{
+    //all worker result in "res"
+});
 ```
 
 #### Stop receive new worker and wait for the rest, default 60 second
 ```csharp
 dispatcherToken.WaitCompleted();
+dispatcherToken.Dispose();
 ```

@@ -6,40 +6,14 @@
     <Authors>Khapalov Sergey</Authors>
     <PackageProjectUrl>https://github.com/khapalov/WorkerDispatcher</PackageProjectUrl>
     <RepositoryUrl>https://github.com/khapalov/WorkerDispatcher</RepositoryUrl>
-    <PackageTags>worker dispatcher async</PackageTags>
+    <PackageTags>worker dispatcher async background</PackageTags>
     <Version>2.3.0</Version>
     <Description>Easy way to run background worker with various mode</Description>
     <RepositoryType>GitHub</RepositoryType>
-    <PackageReleaseNotes>2.3.0
+    <PackageReleaseNotes>Added chain workers, easy way to execute chain worker and wait total result
 
-Added chain workers, easy to execute chain worker and wait total result
-
-*Fixed wait all workers for all mode dispatcher
-
-2.2.1
-
-*Fixed await receive from queue
-*Fixed flow stop
-
-2.2.0
-
-Added typed invoke; 
-Added timeout for current post;
-
-2.0.0; 2.1.0
-
-Added inline post worker t.Post(ct=&gt;Task.Delay(500, ct));
-
-Added dispatcher mode Parallel,Sequenced,ParallelLimit 
-Parallel -&gt; all tasks are called in parallel
-Sequenced -&gt; all tasks are called sequentially
-ParallelLimit -&gt; all tasks are called in parallel with the restriction on the number of threads
-
-1.0.0
-
-Run background workers 
-*Fixed flow stop</PackageReleaseNotes>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+*Fixed wait all workers for all mode dispatcher</PackageReleaseNotes>
+    <PackageLicense>http://www.apache.org/licenses/LICENSE-2.0</PackageLicense>
     <PackageIconUrl>https://www.nuget.org/Content/gallery/img/default-package-icon.svg</PackageIconUrl>
     <Company>Khapalov Sergey</Company>
   </PropertyGroup>
