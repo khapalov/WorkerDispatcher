@@ -59,10 +59,10 @@ namespace UnitTests
 
 			DispatcherToken = Factory.Start(new ActionDispatcherSettings
 			{
-				Timeout = TimeSpan.FromSeconds(1)
+				Timeout = TimeSpan.FromSeconds(0.1)
 			});
 
-			DispatcherToken.Post(t => Task.Delay(10000, t));
+            DispatcherToken.Post(t => Task.Delay(10000, t));
 		}
 
 		[Test]
@@ -86,9 +86,9 @@ namespace UnitTests
 			DispatcherToken = Factory.Start(new ActionDispatcherSettings
 			{
 				Timeout = TimeSpan.FromSeconds(1)
-			});
+			});            
 
-			DispatcherToken.Post(MockActionInvoker.Object);
+            DispatcherToken.Post(MockActionInvoker.Object);
 			DispatcherToken.Post(p => throw new ArgumentException());
 			DispatcherToken.Post(MockActionInvoker.Object);
 		}

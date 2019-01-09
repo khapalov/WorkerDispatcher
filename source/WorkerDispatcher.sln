@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\Unit
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{FCF8F88C-9446-46DD-884F-1B7DEAAE06B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParallelLimitApp", "Samples\ParallelLimitApp\ParallelLimitApp.csproj", "{1C64C346-E121-49E0-B89E-E47771C1D5BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParallelLimitApp", "Samples\ParallelLimitApp\ParallelLimitApp.csproj", "{1C64C346-E121-49E0-B89E-E47771C1D5BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChainApp", "Samples\ChainApp\ChainApp.csproj", "{068846B3-72E6-4E09-87FB-DD98F4451915}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,12 +31,17 @@ Global
 		{1C64C346-E121-49E0-B89E-E47771C1D5BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C64C346-E121-49E0-B89E-E47771C1D5BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C64C346-E121-49E0-B89E-E47771C1D5BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{068846B3-72E6-4E09-87FB-DD98F4451915}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{068846B3-72E6-4E09-87FB-DD98F4451915}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{068846B3-72E6-4E09-87FB-DD98F4451915}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{068846B3-72E6-4E09-87FB-DD98F4451915}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1C64C346-E121-49E0-B89E-E47771C1D5BC} = {FCF8F88C-9446-46DD-884F-1B7DEAAE06B3}
+		{068846B3-72E6-4E09-87FB-DD98F4451915} = {FCF8F88C-9446-46DD-884F-1B7DEAAE06B3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3BC36550-9341-47B2-A6B9-75FDA32D979B}

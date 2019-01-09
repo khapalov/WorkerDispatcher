@@ -4,10 +4,15 @@ using System.Text;
 
 namespace WorkerDispatcher
 {
-    public interface IQueueWorker : IQueueWorkerWriter, IQueueWorkerReceiver, IDisposable
+    internal interface IQueueWorker : IQueueWorkerWriter, IQueueWorkerReceiver, IDisposable, IWorkerNotify
     {
         int Count { get; }
 
         bool IsEmpty { get; }
+    }
+
+    internal interface IWorkerNotify
+    {
+        void SetWorkerEnd();
     }
 }

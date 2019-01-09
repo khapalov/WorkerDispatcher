@@ -6,7 +6,7 @@ namespace WorkerDispatcher
 {
 	public interface IDispatcherToken : IDispatcherTokenSender, IDisposable
 	{
-		Task Stop(int timeoutSeconds = 30);
-		void WaitCompleted(int timeoutSeconds = 30);
+		Task Stop(int timeoutSeconds = 60);
+		void WaitCompleted(int timeoutSeconds = 60);
 	}
 }

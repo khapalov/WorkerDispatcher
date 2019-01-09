@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,7 +23,7 @@ namespace WorkerDispatcher
 
 		public bool IsEmpty
 		{
-			get { return _queue.Count == 0; }
+			get { return _queue.IsEmpty; }
 		}
 
 		public void Post(IActionInvoker actionInvoker)
@@ -30,27 +31,40 @@ namespace WorkerDispatcher
 			_queue.Post(actionInvoker);
 		}
 
+        public void PostBulk(IActionInvoker[] actionInvokers)
+        {
+            if(actionInvokers == null)
+            {
+                throw new ArgumentNullException($"nameof{actionInvokers}");
+            }
+
+            using (var enterPost = _queue.EnterPost())
+            {
+                foreach (var item in actionInvokers)
+                {
+                    Post(item);
+                }
+            }
+        }
+
 		public async Task<IActionInvoker> ReceiveAsync()
 		{
-			var actionInvoker = await _queue.ReceiveAsync().ContinueWith(t =>
-			{
-				if (_queue.IsCompleted)
-				{
-					SetCompleted();
-				}
+            return await _queue.ReceiveAsync();
+        }
 
-				return t;
-
-			}, TaskContinuationOptions.OnlyOnRanToCompletion);
-
-			return await actionInvoker;
-		}
+        void IWorkerNotify.SetWorkerEnd()
+        {
+            if (_queue.IsCompleted && _queue.IsEmpty)
+            {
+                SetCompleted();
+            }
+        }
 
 		public void Complete()
 		{
 			_queue.Complete();
 
-			if (_queue.Count == 0)
+			if (_queue.IsEmpty)
 			{
 				SetCompleted();
 			}			

@@ -1,0 +1,32 @@
+image: microsoft/dotnet:latest
+
+stages:
+    - build
+    - test
+    - deploy    
+
+variables:
+    test: "UnitTests"
+
+before_script:
+    - "cd source"
+    - "dotnet restore"
+
+build:
+    stage: build
+    script:
+        - "dotnet build"
+
+test:
+    stage: test
+    script: 
+        - "cd $test"
+        - "dotnet test"
+
+deploy:
+    stage: deploy
+    script:
+        - "dotnet pack -c Release"
+        - "dotnet nuget push ../build/*.nuget -k $WD_Nuget_Key -s https://api.nuget.org/v3/index.json"
+only:
+   - master
