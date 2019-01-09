@@ -16,6 +16,7 @@
     <PackageLicense>http://www.apache.org/licenses/LICENSE-2.0</PackageLicense>
     <PackageIconUrl>https://www.nuget.org/Content/gallery/img/default-package-icon.svg</PackageIconUrl>
     <Company>Khapalov Sergey</Company>
+    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
