@@ -26,10 +26,10 @@ test:
 deploy:
     stage: deploy
     script:
-        - "dotnet restore"
         - "dotnet build -c Release"     
+        - ".././nuget/nuget.exe setapikey $WD_Nuget_Key"
         - "cd ../build/Release"
-        - "ls"
-        - "dotnet nuget push *.nupkg -k $WD_Nuget_Key -s https://api.nuget.org/v3/index.json"
+        - "ls"        
+        - "dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json"
     only:
         - master
