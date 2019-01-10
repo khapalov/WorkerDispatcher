@@ -1,8 +1,7 @@
 image: microsoft/dotnet:latest
 
 stages:
-    - build
-    - test
+    - build    
     - deploy    
 
 variables:
@@ -16,20 +15,15 @@ build:
     stage: build
     script:
         - "dotnet build"
-
-test:
-    stage: test
-    script: 
         - "cd $test"
-        - "dotnet test"
+        - "dotnet test"        
 
 deploy:
     stage: deploy
     script:
-        - "dotnet build -c Release"     
-        - ".././nuget/nuget.exe setapikey $WD_Nuget_Key"
+        - "dotnet build -c Release"
         - "cd ../build/Release"
         - "ls"        
-        - "dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json"
+        - "dotnet nuget push *.nupkg -k '$WD_Nuget_Key' --source https://api.nuget.org/v3/index.json"
     only:
         - master
