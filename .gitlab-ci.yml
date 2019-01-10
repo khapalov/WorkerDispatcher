@@ -6,6 +6,7 @@ stages:
 
 variables:
     test: "UnitTests"
+    nugetkey: $WD_Nuget_Key
 
 before_script:
     - "cd source"
@@ -22,8 +23,7 @@ deploy:
     stage: deploy
     script:
         - "dotnet build -c Release"
-        - "cd ../build/Release"
-        - "ls"        
-        - "dotnet nuget push *.nupkg -k '$WD_Nuget_Key' --source https://api.nuget.org/v3/index.json"
+        - "cd ../build/Release"                               
+        - "dotnet nuget push *.nupkg -k $nugetkey --source https://api.nuget.org/v3/index.json"
     only:
         - master
