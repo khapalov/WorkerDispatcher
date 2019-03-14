@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Khapalov Sergey</Authors>
+    <Description>Extensions methd for WorkerDispatcher</Description>
+    <PackageProjectUrl>https://github.com/khapalov/WorkerDispatcher</PackageProjectUrl>
+    <PackageIconUrl>https://www.nuget.org/Content/gallery/img/default-package-icon.svg</PackageIconUrl>
+    <RepositoryUrl>https://github.com/khapalov/WorkerDispatcher</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageTags>async thread bulk background</PackageTags>
+    <PackageReleaseNotes>Bulk method</PackageReleaseNotes>
+    <Version>2.3.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>../../build/Debug</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>../../build/Release</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WorkerDispatcher\WorkerDispatcher.csproj" />
+  </ItemGroup>
+
+</Project>
