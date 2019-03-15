@@ -25,12 +25,6 @@ namespace BulkApp
                         return new BatchDataWorkerInt();
                     });
 
-                //p.For<int>(d => d.MaxCount(10).TimeLimit(TimeSpan.FromSeconds(10)))
-                //    .Bind(() =>
-                //    {
-                //        return new BatchDataWorkerInt();
-                //    });
-
                 p.For<string>()
                     .MaxCount(20)
                     .Bind(() =>

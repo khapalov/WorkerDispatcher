@@ -8,13 +8,15 @@ namespace WorkerDispatcher.Extensions.Batch
     {
         public static IBatchFactory Batch(this IDispatcherToken dispatcherToken, Action<IBatchQueueBuilder> action)
         {
-            var builder = new BatchQueueBuilder();
+            var config = new Dictionary<Type, BatchConfig>();
 
-            action(builder);
-            
-            var batchProvider = new BatchQueueProvider(new BatchConfig());
+            var builder = new BatchQueueBuilder(config);
 
-            return new BatchFactory(batchProvider);
+            action(builder);            
+
+            var batchProvider = new BatchQueueProvider(config);
+
+            return new BatchFactory(batchProvider, dispatcherToken, config);
         }
     }
 }

@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using WorkerDispatcher;
 using WorkerDispatcher.Extensions.Batch;
-using WorkerDispatcher.Extensions.Bulk;
 
 namespace BulkApp
 {

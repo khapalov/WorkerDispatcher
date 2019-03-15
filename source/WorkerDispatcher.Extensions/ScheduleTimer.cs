@@ -5,19 +5,23 @@ using System.Timers;
 
 namespace WorkerDispatcher.Extensions
 {
-    public class ScheduleTimer : IScheduleTimer
+    internal class ScheduleTimer : IScheduleTimer
     {
         private readonly Timer _timer;
+        private readonly QueueEvent<Type> _queue;
+        private readonly Type _type;
 
-        public ScheduleTimer(TimeSpan period)
+        public ScheduleTimer(TimeSpan period, QueueEvent<Type> queue, Type type, bool start = false)
         {
             _timer = new Timer(period.TotalMilliseconds)
             {
-                Enabled = false,
+                Enabled = start,
                 AutoReset = true
             };
             
             _timer.Elapsed += TimerElapsed;
+            _queue = queue;
+            _type = type;
         }
 
         public void Start()
@@ -32,7 +36,7 @@ namespace WorkerDispatcher.Extensions
 
         private void TimerElapsed(object sender, ElapsedEventArgs e)
         {
-            Console.WriteLine($"{sender}, {e.SignalTime}");
+            _queue.AddEvent(_type);            
         }
 
         #region IDisposable Support

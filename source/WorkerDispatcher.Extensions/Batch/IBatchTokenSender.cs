@@ -4,8 +4,8 @@ using System.Text;
 
 namespace WorkerDispatcher.Extensions.Batch
 {
-    public interface IBatchQueueBuilder
-    {        
-        IBatchBindingBuilder For<TData>();
+    public interface IBatchTokenSender
+    {
+        void Send<TData>(TData data);
     }
 }

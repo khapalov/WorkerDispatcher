@@ -1,7 +1,12 @@
-﻿namespace WorkerDispatcher.Extensions.Batch
+﻿using System;
+using System.Threading;
+
+namespace WorkerDispatcher.Extensions.Batch
 {
-    public interface IBatchToken
+    public interface IBatchToken : IBatchTokenSender, IDisposable
     {
-        void Send<TData>(TData data);
+        CancellationToken CancellationToken { get; }
+
+        void Stop();
     }
 }

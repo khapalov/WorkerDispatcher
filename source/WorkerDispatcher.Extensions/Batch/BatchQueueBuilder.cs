@@ -6,26 +6,20 @@ namespace WorkerDispatcher.Extensions.Batch
 {
     internal class BatchQueueBuilder : IBatchQueueBuilder
     {
-        private readonly Dictionary<Type, object> _mapping = new Dictionary<Type, object>();
-        private readonly IBatchConfigBuilder _configBuilder;
+        private readonly Dictionary<Type, BatchConfig> _config;
 
-        public BatchQueueBuilder()
+        public BatchQueueBuilder(Dictionary<Type, BatchConfig> config)
         {
-            _configBuilder = new BatchConfigBuilder(_mapping);
+            _config = config;
         }
 
-        public IBatchConfigBuilder For<TData>()
+        public IBatchBindingBuilder For<TData>()
         {
-            
-            //TODO fix
-            _mapping.Add(typeof(TData), new object());
+            var bathConfig = new BatchConfig();            
 
-            return _configBuilder;
+            var builder = new BatchBindingBuilder(bathConfig, _config);
+
+            return builder;
         }
-
-        //internal BatchQueueProvider Build()
-        //{            
-        //    return new BatchQueueProvider(_configBuilder, _queueEvent);
-        //}
     }
 }
