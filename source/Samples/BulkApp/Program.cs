@@ -20,7 +20,7 @@ namespace BulkApp
             {
                 p.For<int>()
                     .MaxCount(10)
-                    .TimeLimit(TimeSpan.FromSeconds(5))
+                    .AwaitTimePeriod(TimeSpan.FromSeconds(5))
                     .Bind(() =>
                     {
                         return new BatchDataWorkerInt();

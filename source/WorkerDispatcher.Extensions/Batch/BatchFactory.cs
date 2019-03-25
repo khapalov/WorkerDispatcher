@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -32,7 +33,9 @@ namespace WorkerDispatcher.Extensions.Batch
 
             var batchDataType = typeof(BatchData<>);
             var actionInvokeType = typeof(IActionInvoker<>);
-            
+
+            var methodPost = _sender.GetType().GetMethods().Where(p => p.IsGenericMethod && p.Name == "Post").Single(p => p.GetParameters().Length == 3);
+
             using (var cancellationTokenSource = new CancellationTokenSource())
             {
                 batchToken = new BatchToken(localQueue, cancellationTokenSource);
@@ -49,35 +52,31 @@ namespace WorkerDispatcher.Extensions.Batch
 
                             if (localQueue.TryGetValue(type, out ConcurrentQueue<object> q))
                             {
-                                var batchGeneric = batchDataType.MakeGenericType(type);
-                                var invokerGeneric = actionInvokeType.MakeGenericType(type);
-
-                                var configQueue = _config[type];
-
-                                //var worker = configQueue.Factory.DynamicInvoke();
-
-                                var list = new List<object>();
-
-                                for (int i = 0; i < configQueue.MaxCount; i++)
+                                if (q.Any())
                                 {
-                                    if (!q.TryDequeue(out object res))
-                                        break;
+                                    var batchGeneric = batchDataType.MakeGenericType(type);
+                                    var invokerGeneric = actionInvokeType.MakeGenericType(type);
 
-                                    list.Add(res);
+                                    var configQueue = _config[type];
+
+                                    var worker = configQueue.Factory.DynamicInvoke();
+
+                                    var list = new List<object>();
+
+                                    for (int i = 0; i < configQueue.MaxCount; i++)
+                                    {
+                                        if (!q.TryDequeue(out object res))
+                                            break;
+
+                                        list.Add(res);
+                                    }
+
+                                    var bacthDatas = Activator.CreateInstance(batchGeneric, new object[] { list.ToArray() });
+
+                                    var genericMethod = methodPost.MakeGenericMethod(batchGeneric);
+
+                                    genericMethod.Invoke(_sender, new object[] { worker, bacthDatas, TimeSpan.FromSeconds(60) });
                                 }
-
-                                var bacthDatas = Activator.CreateInstance(batchGeneric, new object[] { list.ToArray() });
-
-                                var method = _sender.GetType().GetMethod("Post");
-
-                                var genericMethod = method.MakeGenericMethod(type);
-
-                                genericMethod.Invoke(_sender, new object[] { bacthDatas });
-
-                                /*_sender.GetType().InvokeMember("Post",
-                                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod, null,
-                                    _sender, 
-                                    new object[] { worker, bacthDatas });*/
                             }
                         }
                     }
