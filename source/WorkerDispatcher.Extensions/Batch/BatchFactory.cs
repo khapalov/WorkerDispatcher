@@ -50,6 +50,9 @@ namespace WorkerDispatcher.Extensions.Batch
                         {
                             var type = _batchQueueProvider.WaitEvent(cancellationToken);
 
+                            if(type == null)
+                                continue;
+
                             if (localQueue.TryGetValue(type, out ConcurrentQueue<object> q))
                             {
                                 if (q.Any())
@@ -82,6 +85,7 @@ namespace WorkerDispatcher.Extensions.Batch
                     }
                     catch (Exception ex)
                     {
+                        Console.WriteLine(ex.ToString());
                         //_workerHandler.HandleFault(ex);
                     }
                 });
