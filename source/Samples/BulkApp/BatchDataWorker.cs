@@ -11,7 +11,12 @@ namespace BulkApp
     internal class BatchDataWorker<TData> : IActionInvoker<BatchData<TData>>
     {
         public Task<object> Invoke(BatchData<TData> data, CancellationToken token)
-        {            
+        {
+            foreach (var d in data.Datas)
+            {
+                Console.WriteLine(d);
+            }
+
             return Task.FromResult(new object());
         }
     }
@@ -20,6 +25,10 @@ namespace BulkApp
     {
         public Task<object> Invoke(BatchData<int> data, CancellationToken token)
         {
+            foreach(var d in data.Datas)
+            {
+                Console.WriteLine(d);
+            }
             return Task.FromResult(new object());
         }
     }
@@ -28,6 +37,11 @@ namespace BulkApp
     {
         public Task<object> Invoke(BatchData<string> data, CancellationToken token)
         {
+            foreach (var d in data.Datas)
+            {
+                Console.WriteLine(d);
+            }
+
             return Task.FromResult(new object());
         }
     }

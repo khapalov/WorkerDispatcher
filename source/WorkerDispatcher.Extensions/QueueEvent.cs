@@ -24,9 +24,14 @@ namespace WorkerDispatcher.Extensions
         }
 
         public TData WaitEvent(CancellationToken cancellationToken)
-        {            
+        {
+            if (_queue.TryDequeue(out TData data))
+            {
+                return data;
+            }
+
             _autoResetEvent.WaitOne();
-            return _queue.TryDequeue(out TData data) ? data : default(TData);
+            return _queue.TryDequeue(out data) ? data : default(TData);
         }
 
         public void Dispose()

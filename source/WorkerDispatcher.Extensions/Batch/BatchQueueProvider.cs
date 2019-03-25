@@ -16,16 +16,18 @@ namespace WorkerDispatcher.Extensions.Batch
             _config = config;
         }
 
-        public void WaitEvent(CancellationToken cencellationToken)
+        public Type WaitEvent(CancellationToken cencellationToken)
         {
-            var data = _queueEvent.WaitEvent(cencellationToken);            
+            var data = _queueEvent.WaitEvent(cencellationToken);
+
+            return data;
         }
 
         public void StartTimers()
         {            
             foreach(var cfg in _config)
             {
-                var time = new ScheduleTimer(cfg.Value.AwaitTimePeriod,cfg.Value.AwaitTimePeriod, true);
+                var time = new ScheduleTimer(cfg.Value.AwaitTimePeriod, _queueEvent, cfg.Key, true);
                 _timers.Add(time);
             }
         }

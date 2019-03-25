@@ -7,6 +7,7 @@ namespace BulkApp
 {
     class Program
     {
+        
         static void Main(string[] args)
         {
             var factory = new ActionDispatcherFactory();
@@ -19,25 +20,25 @@ namespace BulkApp
             {
                 p.For<int>()
                     .MaxCount(10)
-                    .TimeLimit(TimeSpan.FromSeconds(10))
+                    .TimeLimit(TimeSpan.FromSeconds(5))
                     .Bind(() =>
                     {
                         return new BatchDataWorkerInt();
                     });
 
-                p.For<string>()
-                    .MaxCount(20)
-                    .Bind(() =>
-                    {
-                        return new BatchDataWorkerString();
-                    });
+                //p.For<string>()
+                //    .MaxCount(20)
+                //    .Bind(() =>
+                //    {
+                //        return new BatchDataWorkerString();
+                //    });
 
             }).Start();
 
 
-            //bathToken.Send(10);
-            //bathToken.Send(20);
-            //bathToken.Send(30);
+            bathToken.Send(10);
+            bathToken.Send(20);
+            bathToken.Send(30);
 
             //var data = bulkSender.Flush();
             //var provider = new ScheduleTimerProvider();
