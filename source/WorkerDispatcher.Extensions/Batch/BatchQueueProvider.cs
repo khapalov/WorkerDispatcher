@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace WorkerDispatcher.Extensions.Batch
 {
-    internal class BatchQueueProvider
+    internal class BatchQueueProvider : IDisposable
     {
         private readonly QueueEvent<Type> _queueEvent = new QueueEvent<Type>();
         private readonly IReadOnlyDictionary<Type, BatchConfig> _config;
@@ -39,6 +39,11 @@ namespace WorkerDispatcher.Extensions.Batch
                 t.Stop();
                 t.Dispose();
             }
+        }
+
+        public void Dispose()
+        {
+            StopTimers();
         }
     }
 }

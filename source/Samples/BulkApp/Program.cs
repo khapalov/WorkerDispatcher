@@ -21,14 +21,15 @@ namespace BulkApp
             {
                 p.For<int>()
                     .MaxCount(5)
-                    .AwaitTimePeriod(TimeSpan.FromSeconds(5))
+                    .AwaitTimePeriod(TimeSpan.FromSeconds(2))
                     .Bind(() =>
                     {
                         return new BatchDataWorkerInt();
                     });
 
                 p.For<string>()
-                    .MaxCount(20)
+                    .MaxCount(3)
+                    .AwaitTimePeriod(TimeSpan.FromSeconds(3))
                     .Bind(() =>
                     {
                         return new BatchDataWorkerString();
@@ -38,7 +39,7 @@ namespace BulkApp
 
             Task.Factory.StartNew(async () =>
             {
-                for (var i = 0; i < 100; i++)
+                for (var i = 0; i < 40; i++)
                 {
                     if ((i % 10) == 0)
                     {
@@ -49,11 +50,22 @@ namespace BulkApp
                 }
             });
 
-            
+            Task.Factory.StartNew(async () =>
+            {
+                for (var i = 0; i < 20; i++)
+                {
+                    if ((i % 10) == 0)
+                    {
+                        await Task.Delay(1000);
+                    }
+
+                    bathToken.Send($"hello {i}");
+                }
+            });
+
             Console.ReadKey();
 
-
-            //provider.Stop();
+            bathToken.Dispose();
 
             dispatcher.WaitCompleted();
 

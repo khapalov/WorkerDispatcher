@@ -12,6 +12,6 @@ namespace WorkerDispatcher.Extensions.Batch
 
         IBatchBindingBuilder AwaitTimePeriod(TimeSpan time);   
         
-        void Bind<TData>(BatchDelegate<TData> factoryDelegate);
+        void Bind<TData>(BatchFactoryDelegate<TData> factoryDelegate);
     }
 }

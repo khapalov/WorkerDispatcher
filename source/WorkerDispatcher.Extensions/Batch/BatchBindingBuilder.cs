@@ -33,7 +33,7 @@ namespace WorkerDispatcher.Extensions.Batch
             return this;
         }
 
-        public void Bind<TData>(BatchDelegate<TData> factoryDelegate)
+        public void Bind<TData>(BatchFactoryDelegate<TData> factoryDelegate)
         {
             _configToType.Factory = factoryDelegate;
             _config.Add(typeof(TData), _configToType);

@@ -8,24 +8,11 @@ using WorkerDispatcher.Extensions.Batch;
 
 namespace BulkApp
 {
-    internal class BatchDataWorker<TData> : IActionInvoker<BatchData<TData>>
+     internal class BatchDataWorkerInt : IBatchActionInvoker<int>
     {
-        public Task<object> Invoke(BatchData<TData> data, CancellationToken token)
+        public Task<object> Invoke(int[] data, CancellationToken token)
         {
-            foreach (var d in data.Datas)
-            {
-                Console.WriteLine(d);
-            }
-
-            return Task.FromResult(new object());
-        }
-    }
-
-    internal class BatchDataWorkerInt : IActionInvoker<BatchData<int>>
-    {
-        public Task<object> Invoke(BatchData<int> data, CancellationToken token)
-        {
-            foreach(var d in data.Datas)
+            foreach(var d in data)
             {
                 Console.WriteLine(d);
             }
@@ -33,11 +20,11 @@ namespace BulkApp
         }
     }
 
-    internal class BatchDataWorkerString : IActionInvoker<BatchData<string>>
+    internal class BatchDataWorkerString : IBatchActionInvoker<string>
     {
-        public Task<object> Invoke(BatchData<string> data, CancellationToken token)
+        public Task<object> Invoke(string[] data, CancellationToken token)
         {
-            foreach (var d in data.Datas)
+            foreach (var d in data)
             {
                 Console.WriteLine(d);
             }
