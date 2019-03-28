@@ -6,16 +6,11 @@ using System.Threading;
 
 namespace WorkerDispatcher.Extensions
 {
-    public class QueueEvent<TData> : IDisposable
+    internal class QueueEvent<TData> : IDisposable
     {
         private readonly ConcurrentQueue<TData> _queue = new ConcurrentQueue<TData>();
 
         private readonly AutoResetEvent _autoResetEvent = new AutoResetEvent(false);
-
-        public QueueEvent()
-        {
-            
-        }
 
         public void AddEvent(TData data)
         {

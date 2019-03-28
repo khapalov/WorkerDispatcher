@@ -28,7 +28,7 @@ namespace BulkApp
                 
                 p.For<string>()
                     .MaxCount(15)
-                    .Period(TimeSpan.FromSeconds(1))
+                    .Period(TimeSpan.FromSeconds(3))
                     .Bind(() => new BatchDataWorkerString());
 
             }).Start();
@@ -49,15 +49,25 @@ namespace BulkApp
             Task.Factory.StartNew(async () =>
             {
                 for (var i = 0; i < 100; i++)
-                {
-                    if ((i % 10) == 0)
+                {                    
+                    if ((i % 2) == 0)
                     {
-                        await Task.Delay(2000);
+                        await Task.Delay(1000);
                     }
 
                     bathToken.Send($"hello {i}");
                 }
             });
+
+            //Task.Factory.StartNew(async () =>
+            //{
+            //    for (var i = 0; i < 3; i++)
+            //    {
+            //        await Task.Delay(1000);
+
+            //        bathToken.Flush<string>();
+            //    }
+            //});
 
             Console.ReadKey();
 

@@ -7,20 +7,14 @@ namespace WorkerDispatcher.Extensions.Batch
 {
     internal class BatchQueueProvider : IDisposable
     {
-        private readonly QueueEvent<Type> _queueEvent = new QueueEvent<Type>();
+        private readonly QueueEvent<Type> _queueEvent;
         private readonly IReadOnlyDictionary<Type, BatchConfig> _config;
         private readonly List<IScheduleTimer> _timers = new List<IScheduleTimer>();
 
-        public BatchQueueProvider(IReadOnlyDictionary<Type, BatchConfig> config)
+        public BatchQueueProvider(IReadOnlyDictionary<Type, BatchConfig> config, QueueEvent<Type> queueEvent)
         {
             _config = config;
-        }
-
-        public Type WaitEvent(CancellationToken cencellationToken)
-        {
-            var data = _queueEvent.WaitEvent(cencellationToken);
-
-            return data;
+            _queueEvent = queueEvent;
         }
 
         public void StartTimers()

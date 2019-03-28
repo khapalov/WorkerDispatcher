@@ -15,14 +15,17 @@ namespace WorkerDispatcher.Extensions.Batch
         private readonly BatchQueueProvider _batchQueueProvider;
         private readonly IDispatcherPlugin _plugin;
         private readonly IReadOnlyDictionary<Type, BatchConfig> _config;
+        private readonly QueueEvent<Type> _queueEvent;
 
         public BatchFactory(BatchQueueProvider batchQueueProvider,
             IDispatcherPlugin plugin,
-            IReadOnlyDictionary<Type, BatchConfig> config)
+            IReadOnlyDictionary<Type, BatchConfig> config,
+            QueueEvent<Type> queueEvent)
         {
             _batchQueueProvider = batchQueueProvider;
             _plugin = plugin;
             _config = config;
+            _queueEvent = queueEvent;
         }
 
         public IBatchToken Start()
@@ -38,7 +41,7 @@ namespace WorkerDispatcher.Extensions.Batch
                 .Where(p => p.IsGenericMethod && p.Name == nameof(sender.Post))
                 .Single(p => p.GetParameters().Length == 3);
 
-            var batchToken = new BatchToken(localQueue, _batchQueueProvider);
+            var batchToken = new BatchToken(localQueue, _batchQueueProvider, _queueEvent);
 
             var cancellationToken = batchToken.CancellationToken;
 
@@ -48,7 +51,7 @@ namespace WorkerDispatcher.Extensions.Batch
                 {
                     try
                     {
-                        var type = _batchQueueProvider.WaitEvent(cancellationToken);
+                        var type = _queueEvent.WaitEvent(cancellationToken);
 
                         if (type == null)
                             continue;
@@ -71,7 +74,7 @@ namespace WorkerDispatcher.Extensions.Batch
 
                                 var arrObj = (Array)Activator.CreateInstance(arrType, len);
 
-                                for (int i = 0; i < configQueue.MaxCount; i++)
+                                for (int i = 0; i < len; i++)
                                 {
                                     if (!q.TryDequeue(out object res))
                                         break;

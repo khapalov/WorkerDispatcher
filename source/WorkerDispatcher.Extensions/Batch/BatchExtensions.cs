@@ -14,9 +14,11 @@ namespace WorkerDispatcher.Extensions.Batch
 
             action(builder);
 
-            var batchProvider = new BatchQueueProvider(config);
+            var queueEvent = new QueueEvent<Type>();
 
-            return new BatchFactory(batchProvider, dispatcherPlugin, config);
+            var batchProvider = new BatchQueueProvider(config, queueEvent);
+
+            return new BatchFactory(batchProvider, dispatcherPlugin, config, queueEvent);
         }
     }
 }
