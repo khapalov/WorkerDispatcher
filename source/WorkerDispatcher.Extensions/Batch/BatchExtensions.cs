@@ -6,17 +6,17 @@ namespace WorkerDispatcher.Extensions.Batch
 {
     public static class BatchExtensions
     {
-        public static IBatchFactory Batch(this IDispatcherToken dispatcherToken, Action<IBatchQueueBuilder> action)
+        public static IBatchFactory Batch(this IDispatcherPlugin dispatcherPlugin, Action<IBatchQueueBuilder> action)
         {
             var config = new Dictionary<Type, BatchConfig>();
 
             var builder = new BatchQueueBuilder(config);
 
-            action(builder);            
+            action(builder);
 
             var batchProvider = new BatchQueueProvider(config);
 
-            return new BatchFactory(batchProvider, dispatcherToken, config);
+            return new BatchFactory(batchProvider, dispatcherPlugin, config);
         }
     }
 }

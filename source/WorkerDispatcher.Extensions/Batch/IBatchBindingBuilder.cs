@@ -10,7 +10,7 @@ namespace WorkerDispatcher.Extensions.Batch
 
         IBatchBindingBuilder TimeLimit(TimeSpan time);
 
-        IBatchBindingBuilder AwaitTimePeriod(TimeSpan time);   
+        IBatchBindingBuilder Period(TimeSpan time);   
         
         void Bind<TData>(BatchFactoryDelegate<TData> factoryDelegate);
     }

@@ -28,7 +28,7 @@ namespace WorkerDispatcher
 
             var chainCounter = new CounterBlockedStrong(new CounterBlocked());
 
-            var dispatcherToken = new DispatcherToken(processCount, queueWorker, config, cancellationTokenSource, chainCounter);
+            var dispatcherToken = new DispatcherToken(processCount, queueWorker, config, cancellationTokenSource, chainCounter, _handler);
 
             var schedule = config.BuildSchedule(queueWorker, processCount, _handler);
 

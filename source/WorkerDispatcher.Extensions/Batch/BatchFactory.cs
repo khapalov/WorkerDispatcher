@@ -13,83 +13,84 @@ namespace WorkerDispatcher.Extensions.Batch
     internal class BatchFactory : IBatchFactory
     {
         private readonly BatchQueueProvider _batchQueueProvider;
-        private readonly IDispatcherTokenSender _sender;
+        private readonly IDispatcherPlugin _plugin;
         private readonly IReadOnlyDictionary<Type, BatchConfig> _config;
 
         public BatchFactory(BatchQueueProvider batchQueueProvider,
-            IDispatcherTokenSender sender,
+            IDispatcherPlugin plugin,
             IReadOnlyDictionary<Type, BatchConfig> config)
         {
             _batchQueueProvider = batchQueueProvider;
-            _sender = sender;
+            _plugin = plugin;
             _config = config;
         }
 
         public IBatchToken Start()
         {
-            BatchToken batchToken;
-            
             var localQueue = CreateQueue();
 
             var actionInvokeType = typeof(IActionInvoker<>);
 
-            var methodPost = _sender.GetType().GetMethods().Where(p => p.IsGenericMethod && p.Name == "Post").Single(p => p.GetParameters().Length == 3);
+            var sender = _plugin.Sender;
 
-            using (var cancellationTokenSource = new CancellationTokenSource())
+            var methodPost = sender.GetType()
+                .GetMethods()
+                .Where(p => p.IsGenericMethod && p.Name == nameof(sender.Post))
+                .Single(p => p.GetParameters().Length == 3);
+
+            var batchToken = new BatchToken(localQueue, _batchQueueProvider);
+
+            var cancellationToken = batchToken.CancellationToken;
+
+            Task.Factory.StartNew(() =>
             {
-                batchToken = new BatchToken(localQueue,_batchQueueProvider, cancellationTokenSource);
-
-                var cancellationToken = cancellationTokenSource.Token;
-
-                Task.Factory.StartNew(() =>
+                while (!cancellationToken.IsCancellationRequested)
                 {
                     try
                     {
-                        while (!cancellationToken.IsCancellationRequested)
+                        var type = _batchQueueProvider.WaitEvent(cancellationToken);
+
+                        if (type == null)
+                            continue;
+
+                        if (localQueue.TryGetValue(type, out ConcurrentQueue<object> q))
                         {
-                            var type = _batchQueueProvider.WaitEvent(cancellationToken);
-
-                            if(type == null)
-                                continue;
-
-                            if (localQueue.TryGetValue(type, out ConcurrentQueue<object> q))
+                            if (q.Any())
                             {
-                                if (q.Any())
-                                {                                    
-                                    var invokerGeneric = actionInvokeType.MakeGenericType(type);
+                                var invokerGeneric = actionInvokeType.MakeGenericType(type);
 
-                                    var configQueue = _config[type];
+                                var configQueue = _config[type];
 
-                                    var worker = configQueue.Factory.DynamicInvoke();
+                                var worker = configQueue.Factory.DynamicInvoke();
 
-                                    var len = q.Count >= configQueue.MaxCount ? configQueue.MaxCount : configQueue.MaxCount;
-                                    
-                                    var arrType = type.MakeArrayType();
-                                    
-                                    var arrObj = (Array)Activator.CreateInstance(arrType, len);
+                                var count = q.Count;
 
-                                    for (int i = 0; i < configQueue.MaxCount; i++)
-                                    {
-                                        if (!q.TryDequeue(out object res))
-                                            break;
+                                var len = count >= configQueue.MaxCount ? configQueue.MaxCount : count;
 
-                                           arrObj.SetValue(res, i);
-                                    }
-                                    
-                                    var genericMethod = methodPost.MakeGenericMethod(arrType);
-                                    
-                                    genericMethod.Invoke(_sender, new object[] { worker, arrObj, configQueue.TimeLimit });
+                                var arrType = type.MakeArrayType();
+
+                                var arrObj = (Array)Activator.CreateInstance(arrType, len);
+
+                                for (int i = 0; i < configQueue.MaxCount; i++)
+                                {
+                                    if (!q.TryDequeue(out object res))
+                                        break;
+
+                                    arrObj.SetValue(res, i);
                                 }
+
+                                var genericMethod = methodPost.MakeGenericMethod(arrType);
+
+                                genericMethod.Invoke(sender, new object[] { worker, arrObj, configQueue.TimeLimit });
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.ToString());
-                        //_workerHandler.HandleFault(ex);
+                        _plugin.LogFault(ex);
                     }
-                });
-            }
+                }
+            });
 
             _batchQueueProvider.StartTimers();
 

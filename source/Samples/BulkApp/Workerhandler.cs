@@ -20,7 +20,7 @@ namespace BulkApp
 
         public void HandleResult(object result, decimal duration)
         {
-            //Console.WriteLine($"result: {result}, duration: {duration}");
+            Console.WriteLine($"result: {result}, duration: {duration}");
         }
     }
 }

@@ -16,6 +16,7 @@ namespace BulkApp
             {
                 Console.WriteLine(d);
             }
+            Console.WriteLine("============================");
             return Task.FromResult(new object());
         }
     }
@@ -28,7 +29,7 @@ namespace BulkApp
             {
                 Console.WriteLine(d);
             }
-
+            Console.WriteLine("============================");
             return Task.FromResult(new object());
         }
     }

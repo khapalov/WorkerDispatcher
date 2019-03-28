@@ -15,7 +15,7 @@ namespace WorkerDispatcher.Extensions.Batch
             _config = config;
         }
 
-        public IBatchBindingBuilder AwaitTimePeriod(TimeSpan time)
+        public IBatchBindingBuilder Period(TimeSpan time)
         {
             _configToType.AwaitTimePeriod = time;
             return this;

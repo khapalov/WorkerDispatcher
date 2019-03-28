@@ -1,49 +1,45 @@
 ﻿using System;
 using System.Threading.Tasks;
 using WorkerDispatcher;
-using WorkerDispatcher.Extensions;
 using WorkerDispatcher.Extensions.Batch;
 
 namespace BulkApp
 {
     class Program
     {
-        
+
         static void Main(string[] args)
         {
-            var factory = new ActionDispatcherFactory();
+            var handler = new Workerhandler();
+
+            var factory = new ActionDispatcherFactory(handler);
 
             var dispatcher = factory.Start();
 
-            var handler = new Workerhandler();
-
-            var bathToken = dispatcher.Batch(p =>
+            var bathToken = dispatcher.Plugin.Batch(p =>
             {
                 p.For<int>()
-                    .MaxCount(5)
-                    .AwaitTimePeriod(TimeSpan.FromSeconds(2))
+                    .MaxCount(15)
+                    .Period(TimeSpan.FromSeconds(1.5))
                     .Bind(() =>
                     {
                         return new BatchDataWorkerInt();
                     });
-
+                
                 p.For<string>()
-                    .MaxCount(3)
-                    .AwaitTimePeriod(TimeSpan.FromSeconds(3))
-                    .Bind(() =>
-                    {
-                        return new BatchDataWorkerString();
-                    });
+                    .MaxCount(15)
+                    .Period(TimeSpan.FromSeconds(1))
+                    .Bind(() => new BatchDataWorkerString());
 
             }).Start();
 
             Task.Factory.StartNew(async () =>
             {
-                for (var i = 0; i < 40; i++)
+                for (var i = 0; i < 60; i++)
                 {
                     if ((i % 10) == 0)
                     {
-                        await Task.Delay(1000);
+                        await Task.Delay(200);
                     }
 
                     bathToken.Send(i);
@@ -52,11 +48,11 @@ namespace BulkApp
 
             Task.Factory.StartNew(async () =>
             {
-                for (var i = 0; i < 20; i++)
+                for (var i = 0; i < 100; i++)
                 {
                     if ((i % 10) == 0)
                     {
-                        await Task.Delay(1000);
+                        await Task.Delay(2000);
                     }
 
                     bathToken.Send($"hello {i}");

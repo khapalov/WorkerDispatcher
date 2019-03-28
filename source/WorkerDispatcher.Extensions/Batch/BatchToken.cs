@@ -8,17 +8,17 @@ namespace WorkerDispatcher.Extensions.Batch
 {
     internal class BatchToken : IBatchToken
     {
+        private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly ConcurrentDictionary<Type, ConcurrentQueue<object>> _queue;
         private readonly BatchQueueProvider _queueProvider;
-        private readonly CancellationTokenSource _tokenSource;
 
-        public CancellationToken CancellationToken => _tokenSource.Token;
+        public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
-        internal BatchToken(ConcurrentDictionary<Type, ConcurrentQueue<object>> queue, BatchQueueProvider queueProvider,  CancellationTokenSource cancellationTokenSource)
+        internal BatchToken(ConcurrentDictionary<Type, ConcurrentQueue<object>> queue, BatchQueueProvider queueProvider)
         {
+            _cancellationTokenSource = new CancellationTokenSource();
             _queue = queue;
             _queueProvider = queueProvider;
-            _tokenSource = cancellationTokenSource;
         }
 
         public void Send<TData>(TData data)
@@ -35,11 +35,13 @@ namespace WorkerDispatcher.Extensions.Batch
 
         public void Stop()
         {
-            _tokenSource.Cancel();
+            _cancellationTokenSource.Cancel();
         }
 
         public void Dispose()
         {
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
             _queueProvider.Dispose();
         }
     }
