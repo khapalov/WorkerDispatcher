@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace WorkerDispatcher
 {
-	public interface IDispatcherToken : IDispatcherTokenSender, IDisposable
+    public interface IDispatcherToken : IDispatcherTokenSender, IDisposable
 	{
         IDispatcherPlugin Plugin { get; }
 

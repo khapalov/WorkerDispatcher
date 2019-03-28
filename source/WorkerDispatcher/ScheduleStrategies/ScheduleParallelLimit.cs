@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace WorkerDispatcher.ScheduleStrategies
 {
-	internal class ScheduleParallelLimit : ScheduleStrategiesBase
+    internal class ScheduleParallelLimit : ScheduleStrategiesBase
 	{
 		private readonly SemaphoreSlim _threadLimit;
 

@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using WorkerDispatcher;
 using WorkerDispatcher.Extensions.Batch;
 
 namespace BulkApp
 {
-     internal class BatchDataWorkerInt : IBatchActionInvoker<int>
+    internal class BatchDataWorkerInt : IBatchActionInvoker<int>
     {
         public Task<object> Invoke(int[] data, CancellationToken token)
         {
