@@ -12,11 +12,11 @@ namespace WorkerDispatcher.Extensions.Batch
             _config = config;
         }
 
-        public IBatchBindingBuilder For<TData>()
+        public IBatchBindingBuilder<TData> For<TData>()
         {
             var bathConfig = new BatchConfig();            
 
-            var builder = new BatchBindingBuilder(bathConfig, _config);
+            var builder = new BatchBindingBuilder<TData>(bathConfig, _config);
 
             return builder;
         }

@@ -2,6 +2,6 @@
 {
     public interface IBatchQueueBuilder
     {        
-        IBatchBindingBuilder For<TData>();
+        IBatchBindingBuilder<TData> For<TData>();
     }
 }

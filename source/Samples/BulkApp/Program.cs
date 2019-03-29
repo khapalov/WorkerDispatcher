@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using WorkerDispatcher;
 using WorkerDispatcher.Extensions.Batch;
@@ -25,11 +26,16 @@ namespace BulkApp
                     {
                         return new BatchDataWorkerInt();
                     });
-                
+
                 p.For<string>()
                     .MaxCount(15)
-                    .Period(TimeSpan.FromSeconds(3))
-                    .Bind(() => new BatchDataWorkerString());
+                    .Period(TimeSpan.FromSeconds(1))
+                    .Bind(data =>
+                    {
+                        var str = string.Join(", ", data.Select(s => s.ToString()));
+                        Console.WriteLine(str);
+                        return Task.CompletedTask;
+                    });                    
 
             }).Start();
 
@@ -50,7 +56,7 @@ namespace BulkApp
             {
                 for (var i = 0; i < 100; i++)
                 {                    
-                    if ((i % 2) == 0)
+                    if ((i % 5) == 0)
                     {
                         await Task.Delay(1000);
                     }

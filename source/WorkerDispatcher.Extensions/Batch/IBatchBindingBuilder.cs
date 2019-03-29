@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace WorkerDispatcher.Extensions.Batch
 {
-    public interface IBatchBindingBuilder
+    public interface IBatchBindingBuilder<TData>
     {
-        IBatchBindingBuilder MaxCount(int maxCount);
+        IBatchBindingBuilder<TData> MaxCount(int maxCount);
 
-        IBatchBindingBuilder TimeLimit(TimeSpan time);
+        IBatchBindingBuilder<TData> TimeLimit(TimeSpan time);
 
-        IBatchBindingBuilder Period(TimeSpan time);   
+        IBatchBindingBuilder<TData> Period(TimeSpan time);   
         
-        void Bind<TData>(BatchFactoryDelegate<TData> factoryDelegate);
+        void Bind(BatchFactoryDelegate<TData> factoryDelegate);
+
+        void Bind(Func<TData[], Task> action);
     }
 }
