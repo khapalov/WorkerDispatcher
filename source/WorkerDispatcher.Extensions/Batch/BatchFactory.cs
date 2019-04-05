@@ -26,7 +26,6 @@ namespace WorkerDispatcher.Extensions.Batch
 
         public IBatchToken Start()
         {
-            ///var localQueue = CreateQueue();
             var localQueue = new LocalQueueBuilder(_config).Build();
 
             var actionInvokeType = typeof(IActionInvoker<>);
@@ -76,20 +75,6 @@ namespace WorkerDispatcher.Extensions.Batch
             _batchQueueProvider.StartTimers();
 
             return batchToken;
-        }
-
-        private ConcurrentDictionary<Type, ConcurrentQueue<object>> CreateQueue()
-        {
-            var queue = new ConcurrentDictionary<Type, ConcurrentQueue<object>>();
-            foreach (var c in _config)
-            {
-                if (!queue.TryAdd(c.Key, new ConcurrentQueue<object>()))
-                {
-                    throw new ArgumentException($"Key is exist {c.Key}");
-                }
-            }
-
-            return queue;
         }
     }
 }
