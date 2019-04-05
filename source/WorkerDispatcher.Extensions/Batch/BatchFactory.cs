@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace WorkerDispatcher.Extensions.Batch
@@ -12,6 +13,8 @@ namespace WorkerDispatcher.Extensions.Batch
         private readonly IDispatcherPlugin _plugin;
         private readonly IReadOnlyDictionary<Type, BatchConfig> _config;
         private readonly QueueEvent<Type> _queueEvent;
+        private readonly Dictionary<Type, MethodInfo> _cacheMethod = new Dictionary<Type, MethodInfo>();
+
 
         public BatchFactory(BatchQueueProvider batchQueueProvider,
             IDispatcherPlugin plugin,
@@ -61,7 +64,12 @@ namespace WorkerDispatcher.Extensions.Batch
 
                         var worker = configQueue.Factory.DynamicInvoke();
 
-                        var genericMethod = methodPost.MakeGenericMethod(arr.GetType());
+                        if (!_cacheMethod.TryGetValue(type, out MethodInfo genericMethod))
+                        {
+                            genericMethod = methodPost.MakeGenericMethod(arr.GetType());
+
+                            _cacheMethod.Add(type, genericMethod);
+                        }
 
                         genericMethod.Invoke(sender, new object[] { worker, arr, configQueue.TimeLimit });
                     }
