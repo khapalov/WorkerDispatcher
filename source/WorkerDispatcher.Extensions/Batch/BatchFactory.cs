@@ -26,7 +26,8 @@ namespace WorkerDispatcher.Extensions.Batch
 
         public IBatchToken Start()
         {
-            var localQueue = CreateQueue();
+            ///var localQueue = CreateQueue();
+            var localQueue = new LocalQueueBuilder(_config).Build();
 
             var actionInvokeType = typeof(IActionInvoker<>);
 
@@ -52,37 +53,18 @@ namespace WorkerDispatcher.Extensions.Batch
                         if (type == null)
                             continue;
 
-                        if (localQueue.TryGetValue(type, out ConcurrentQueue<object> q))
-                        {
-                            if (q.Any())
-                            {
-                                var invokerGeneric = actionInvokeType.MakeGenericType(type);
+                        var arr = localQueue.Dequeue(type);
 
-                                var configQueue = _config[type];
+                        if (arr == null || arr.Length == 0)
+                            continue;
 
-                                var worker = configQueue.Factory.DynamicInvoke();
+                        var configQueue = _config[type];
 
-                                var count = q.Count;
+                        var worker = configQueue.Factory.DynamicInvoke();
 
-                                var len = count >= configQueue.MaxCount ? configQueue.MaxCount : count;
+                        var genericMethod = methodPost.MakeGenericMethod(arr.GetType());
 
-                                var arrType = type.MakeArrayType();
-
-                                var arrObj = (Array)Activator.CreateInstance(arrType, len);
-
-                                for (int i = 0; i < len; i++)
-                                {
-                                    if (!q.TryDequeue(out object res))
-                                        break;
-
-                                    arrObj.SetValue(res, i);
-                                }
-
-                                var genericMethod = methodPost.MakeGenericMethod(arrType);
-
-                                genericMethod.Invoke(sender, new object[] { worker, arrObj, configQueue.TimeLimit });
-                            }
-                        }
+                        genericMethod.Invoke(sender, new object[] { worker, arr, configQueue.TimeLimit });
                     }
                     catch (Exception ex)
                     {
