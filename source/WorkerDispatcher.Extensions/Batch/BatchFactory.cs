@@ -31,8 +31,6 @@ namespace WorkerDispatcher.Extensions.Batch
         {
             var localQueue = new LocalQueueBuilder(_config).Build();
 
-            var actionInvokeType = typeof(IActionInvoker<>);
-
             var sender = _plugin.Sender;
 
             var methodPost = sender.GetType()

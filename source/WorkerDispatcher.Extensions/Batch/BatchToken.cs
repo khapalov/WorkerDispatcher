@@ -40,7 +40,10 @@ namespace WorkerDispatcher.Extensions.Batch
 
         public void Flush<TData>()
         {
-            _queueEvent.AddEvent(typeof(TData));
+            if (_queue.HasQueued<TData>())
+            {
+                _queueEvent.AddEvent(typeof(TData));
+            }
         }
     }
 }

@@ -29,6 +29,11 @@ namespace WorkerDispatcher.Extensions.Batch
             }
         }
 
+        public bool HasQueued<TData>()
+        {
+            return _queue.ContainsKey(typeof(TData));
+        }
+
         public Array Dequeue(Type type, int retreiveCount = 0)
         {
             Array resultArr = default(Array);
