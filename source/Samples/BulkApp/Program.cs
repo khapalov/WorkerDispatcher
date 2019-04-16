@@ -21,15 +21,17 @@ namespace BulkApp
             {
                 p.For<int>()
                     .MaxCount(15)
-                    .Period(TimeSpan.FromSeconds(1.5))
+                    .Period(TimeSpan.FromSeconds(1.5))                    
+                    .FlushOnStop(false)
                     .Bind(() =>
                     {
                         return new BatchDataWorkerInt();
                     });
 
                 p.For<string>()
-                    .MaxCount(15)
+                    .MaxCount(3)
                     .Period(TimeSpan.FromSeconds(1))
+                    .FlushOnStop(true)
                     .Bind(data =>
                     {
                         var str = string.Join(", ", data.Select(s => s.ToString()));
@@ -56,10 +58,10 @@ namespace BulkApp
             {
                 for (var i = 0; i < 50; i++)
                 {                    
-                    if ((i % 5) == 0)
-                    {
-                        await Task.Delay(1000);
-                    }
+                    //if ((i % 5) == 0)
+                    //{
+                    //    await Task.Delay(1000);
+                    //}
 
                     bathToken.Send($"hello {i}");
                 }
@@ -77,6 +79,7 @@ namespace BulkApp
 
             Console.ReadKey();
 
+            bathToken.Stop();
             bathToken.Dispose();
 
             dispatcher.WaitCompleted();

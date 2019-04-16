@@ -9,6 +9,7 @@ namespace WorkerDispatcher.Extensions.Batch
             AwaitTimePeriod = TimeSpan.FromSeconds(30);
             MaxCount = 10;
             TimeLimit = TimeSpan.FromSeconds(30);
+            FlushOnStop = true;
         }
 
         public TimeSpan AwaitTimePeriod { get; internal set; }
@@ -18,5 +19,7 @@ namespace WorkerDispatcher.Extensions.Batch
         public TimeSpan TimeLimit { get; internal set; }
 
         public Delegate Factory { get; internal set; }
+
+        public bool FlushOnStop { get; internal set; }
     }
 }

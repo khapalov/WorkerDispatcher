@@ -9,8 +9,10 @@ namespace WorkerDispatcher.Extensions.Batch
 
         IBatchBindingBuilder<TData> TimeLimit(TimeSpan time);
 
-        IBatchBindingBuilder<TData> Period(TimeSpan time);   
-        
+        IBatchBindingBuilder<TData> Period(TimeSpan time);
+
+        IBatchBindingBuilder<TData> FlushOnStop(bool flush);
+
         void Bind(BatchFactoryDelegate<TData> factoryDelegate);
 
         void Bind(Func<TData[], Task> action);

@@ -42,13 +42,14 @@ namespace WorkerDispatcher.Extensions.Batch
             {
                 if (q.Any())
                 {
-                    var count = q.Count;                    
+                    var count = q.Count;
 
                     var configQueue = _config[type];
 
                     var maxCount = retreiveCount > 0 ? retreiveCount : configQueue.MaxCount;
 
-                    var len = count >= maxCount ? maxCount : count;
+                    var len = retreiveCount < 0 ? count :
+                              count >= maxCount ? maxCount : count;
 
                     var arrType = type.MakeArrayType();
 

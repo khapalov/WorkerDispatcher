@@ -34,6 +34,12 @@ namespace WorkerDispatcher.Extensions.Batch
             return this;
         }
 
+        public IBatchBindingBuilder<TData> FlushOnStop(bool flush)
+        {
+            _configToType.FlushOnStop = flush;
+            return this;
+        }
+
         public void Bind(BatchFactoryDelegate<TData> factoryDelegate)
         {
             _configToType.Factory = factoryDelegate;
@@ -50,7 +56,7 @@ namespace WorkerDispatcher.Extensions.Batch
 
             _configToType.Factory = fn;
             _config.Add(typeof(TData), _configToType);
-        }        
+        }
     }
 
     internal class BatchWorkerInternal<TData> : IBatchActionInvoker<TData>
