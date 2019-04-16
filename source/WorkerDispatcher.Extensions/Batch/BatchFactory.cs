@@ -106,6 +106,10 @@ namespace WorkerDispatcher.Extensions.Batch
                     PostWorker(f.Key, methodPost, -1);
                 }
             }
+            catch(Exception ex)
+            {
+                _plugin.LogFault(ex);
+            }
             finally
             {
                 _manualResetEventSlim.Set();
