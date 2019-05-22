@@ -8,5 +8,7 @@ namespace WorkerDispatcher.Extensions.Batch
         CancellationToken CancellationToken { get; }
 
         void Stop();
+
+        void Stop(TimeSpan awaitTime);
     }
 }

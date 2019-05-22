@@ -5,13 +5,13 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Khapalov Sergey</Authors>
-    <Description>Extensions methd for WorkerDispatcher</Description>
+    <Description>Batch extension for WorkerDispatcher</Description>
     <PackageProjectUrl>https://github.com/khapalov/WorkerDispatcher</PackageProjectUrl>
     <PackageIconUrl>https://www.nuget.org/Content/gallery/img/default-package-icon.svg</PackageIconUrl>
     <RepositoryUrl>https://github.com/khapalov/WorkerDispatcher</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>async thread bulk background</PackageTags>
-    <PackageReleaseNotes>Bulk method</PackageReleaseNotes>
+    <PackageReleaseNotes>Batch extension for WorkerDispatcher</PackageReleaseNotes>
     <Version>2.4.0</Version>
   </PropertyGroup>
 

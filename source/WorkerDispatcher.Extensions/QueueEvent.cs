@@ -18,9 +18,14 @@ namespace WorkerDispatcher.Extensions
 
         public TData WaitEvent(CancellationToken cancellationToken)
         {
+            if (_queue.TryDequeue(out TData data))
+            {
+                return data;
+            }
+
             using (cancellationToken.Register(() => _autoResetEvent.Set()))
             {
-                if (_queue.TryDequeue(out TData data))
+                if (_queue.TryDequeue(out data))
                 {
                     return data;
                 }

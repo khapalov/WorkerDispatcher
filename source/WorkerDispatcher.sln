@@ -13,9 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParallelLimitApp", "Samples
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChainApp", "Samples\ChainApp\ChainApp.csproj", "{068846B3-72E6-4E09-87FB-DD98F4451915}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerDispatcher.Extensions", "WorkerDispatcher.Extensions\WorkerDispatcher.Extensions.csproj", "{D15EE18B-19BE-47AA-9461-3432D6571577}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerDispatcher.Batch", "WorkerDispatcher.Extensions\WorkerDispatcher.Batch.csproj", "{D15EE18B-19BE-47AA-9461-3432D6571577}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BulkApp", "Samples\BulkApp\BulkApp.csproj", "{F6126166-66C6-42A8-BA47-6EC61EE12ACA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BulkApp", "Samples\BulkApp\BulkApp.csproj", "{F6126166-66C6-42A8-BA47-6EC61EE12ACA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

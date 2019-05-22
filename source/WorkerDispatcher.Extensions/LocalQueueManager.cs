@@ -17,16 +17,18 @@ namespace WorkerDispatcher.Extensions.Batch
             _config = config;
         }
 
-        public void Enqueue<TData>(TData data)
+        public int Enqueue<TData>(TData data)
         {
             if (_queue.TryGetValue(typeof(TData), out ConcurrentQueue<object> q))
-            {
+            {                
                 q.Enqueue(data);
             }
             else
             {
                 throw new ArgumentException($"No registered type {typeof(TData)}");
             }
+
+            return _queue.Count;
         }
 
         public bool HasQueued<TData>()

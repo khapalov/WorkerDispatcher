@@ -8,17 +8,17 @@ namespace WorkerDispatcher.Extensions.Batch
     {
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly LocalQueueManager _queue;
-        private readonly BatchQueueProvider _queueProvider;
+        private readonly TimerQueueProvider _timerQueueProvider;
         private readonly QueueEvent<Type> _queueEvent;
         private readonly ManualResetEventSlim _manualResetEventSlim;
 
         public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
-        internal BatchToken(LocalQueueManager queue, BatchQueueProvider queueProvider, QueueEvent<Type> queueEvent, ManualResetEventSlim manualResetEventSlim)
+        internal BatchToken(LocalQueueManager queue, TimerQueueProvider timeQueueProvider, QueueEvent<Type> queueEvent, ManualResetEventSlim manualResetEventSlim)
         {
             _cancellationTokenSource = new CancellationTokenSource();
             _queue = queue;
-            _queueProvider = queueProvider;
+            _timerQueueProvider = timeQueueProvider;
             _queueEvent = queueEvent;
             _manualResetEventSlim = manualResetEventSlim;
         }
@@ -30,14 +30,26 @@ namespace WorkerDispatcher.Extensions.Batch
 
         public void Stop()
         {
+            Stop(TimeSpan.Zero);
+        }
+
+        public void Stop(TimeSpan awaitTime)
+        {
             _cancellationTokenSource.Cancel();
-            _manualResetEventSlim.Wait();
+            if (awaitTime == TimeSpan.Zero)
+            {
+                _manualResetEventSlim.Wait();
+            }
+            else
+            {
+                _manualResetEventSlim.Wait(awaitTime);
+            }
         }
 
         public void Dispose()
         {
             _cancellationTokenSource.Cancel();
-            _queueProvider.Dispose();
+            _timerQueueProvider.Dispose();
             _cancellationTokenSource.Dispose();
         }
 

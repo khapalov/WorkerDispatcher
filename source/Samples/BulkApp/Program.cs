@@ -54,7 +54,7 @@ namespace BulkApp
                 }
             });
 
-            Task.Factory.StartNew(async () =>
+            Task.Factory.StartNew(() =>
             {
                 for (var i = 0; i < 50; i++)
                 {                    

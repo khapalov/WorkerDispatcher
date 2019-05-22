@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\WorkerDispatcher.Extensions\WorkerDispatcher.Extensions.csproj" />
+    <ProjectReference Include="..\..\WorkerDispatcher.Extensions\WorkerDispatcher.Batch.csproj" />
   </ItemGroup>
 
 </Project>

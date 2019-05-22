@@ -10,7 +10,7 @@ namespace WorkerDispatcher.Extensions.Batch
 {
     internal class BatchFactory : IBatchFactory
     {
-        private readonly BatchQueueProvider _batchQueueProvider;
+        private readonly TimerQueueProvider _batchQueueProvider;
         private readonly IDispatcherPlugin _plugin;
         private readonly IReadOnlyDictionary<Type, BatchConfig> _config;
         private readonly QueueEvent<Type> _queueEvent;
@@ -18,7 +18,7 @@ namespace WorkerDispatcher.Extensions.Batch
         private readonly Dictionary<Type, MethodInfo> _cacheMethod = new Dictionary<Type, MethodInfo>();
         private readonly ManualResetEventSlim _manualResetEventSlim = new ManualResetEventSlim(false);
 
-        public BatchFactory(BatchQueueProvider batchQueueProvider,
+        public BatchFactory(TimerQueueProvider batchQueueProvider,
             IDispatcherPlugin plugin,
             IReadOnlyDictionary<Type, BatchConfig> config,
             QueueEvent<Type> queueEvent,
@@ -56,7 +56,7 @@ namespace WorkerDispatcher.Extensions.Batch
                             continue;
 
                         PostWorker(type, methodPost);
-                        
+
                     }
                     catch (Exception ex)
                     {
@@ -65,7 +65,7 @@ namespace WorkerDispatcher.Extensions.Batch
                 }
 
                 Flushing(methodPost);
-            });
+            }, TaskCreationOptions.LongRunning);
 
             _batchQueueProvider.StartTimers();
 
