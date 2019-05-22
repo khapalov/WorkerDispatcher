@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WorkerDispatcher.Extensions
+namespace WorkerDispatcher.Batch
 {
     public interface IScheduleTimer: IDisposable
     {

@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace WorkerDispatcher.Extensions
+namespace WorkerDispatcher.Batch
 {
     internal class QueueEvent<TData> : IDisposable
     {

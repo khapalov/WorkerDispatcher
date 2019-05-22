@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WorkerDispatcher.Extensions.Batch
+namespace WorkerDispatcher.Batch
 {
     internal class BatchBindingBuilder<TData> : IBatchBindingBuilder<TData>
     {

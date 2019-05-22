@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WorkerDispatcher.Extensions.Batch
+namespace WorkerDispatcher.Batch
 {
     public static class BatchExtensions
     {
@@ -15,11 +15,13 @@ namespace WorkerDispatcher.Extensions.Batch
 
             var queueEvent = new QueueEvent<Type>();
 
-            var batchProvider = new TimerQueueProvider(config, queueEvent);
+            var batchConfigProvider = new BatchConfigProvider(config);
 
-            var queueManager = new LocalQueueBuilder(config).Build();
+            var batchProvider = new TimerQueueProvider(batchConfigProvider, queueEvent);
 
-            return new BatchFactory(batchProvider, dispatcherPlugin, config, queueEvent, queueManager);
+            var queueManager = new LocalQueueBuilder(batchConfigProvider).Build();
+
+            return new BatchFactory(batchProvider, dispatcherPlugin, batchConfigProvider, queueEvent, queueManager);
         }
     }
 }

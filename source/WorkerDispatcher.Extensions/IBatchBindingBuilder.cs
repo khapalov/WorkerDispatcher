@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace WorkerDispatcher.Extensions.Batch
+namespace WorkerDispatcher.Batch
 {
     public interface IBatchBindingBuilder<TData>
     {

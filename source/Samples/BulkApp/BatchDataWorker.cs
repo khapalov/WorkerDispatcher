@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using WorkerDispatcher.Extensions.Batch;
+using WorkerDispatcher.Batch;
 
 namespace BulkApp
 {

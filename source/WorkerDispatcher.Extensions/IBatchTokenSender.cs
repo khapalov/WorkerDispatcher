@@ -1,4 +1,4 @@
-﻿namespace WorkerDispatcher.Extensions.Batch
+﻿namespace WorkerDispatcher.Batch
 {
     public interface IBatchTokenSender
     {

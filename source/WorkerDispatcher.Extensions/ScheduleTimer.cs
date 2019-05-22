@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Timers;
 
-namespace WorkerDispatcher.Extensions
+namespace WorkerDispatcher.Batch
 {
     internal class ScheduleTimer : IScheduleTimer
     {

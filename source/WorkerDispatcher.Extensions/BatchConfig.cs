@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WorkerDispatcher.Extensions.Batch
+namespace WorkerDispatcher.Batch
 {
     internal class BatchConfig
     {

@@ -4,14 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace WorkerDispatcher.Extensions.Batch
+namespace WorkerDispatcher.Batch
 {
     internal class LocalQueueManager
     {
         private readonly ConcurrentDictionary<Type, ConcurrentQueue<object>> _queue;
-        private readonly IReadOnlyDictionary<Type, BatchConfig> _config;
+        private readonly BatchConfigProvider _config;
 
-        public LocalQueueManager(ConcurrentDictionary<Type, ConcurrentQueue<object>> queue, IReadOnlyDictionary<Type, BatchConfig> config)
+        public LocalQueueManager(ConcurrentDictionary<Type, ConcurrentQueue<object>> queue, BatchConfigProvider config)
         {
             _queue = queue;
             _config = config;
@@ -46,7 +46,7 @@ namespace WorkerDispatcher.Extensions.Batch
                 {
                     var count = q.Count;
 
-                    var configQueue = _config[type];
+                    var configQueue = _config.Get(type);
 
                     var maxCount = retreiveCount > 0 ? retreiveCount : configQueue.MaxCount;
 

@@ -1,4 +1,4 @@
-﻿namespace WorkerDispatcher.Extensions.Batch
+﻿namespace WorkerDispatcher.Batch
 {
     public delegate IBatchActionInvoker<TData> BatchFactoryDelegate<TData>();
 }

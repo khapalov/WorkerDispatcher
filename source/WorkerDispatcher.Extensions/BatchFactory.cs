@@ -6,13 +6,13 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WorkerDispatcher.Extensions.Batch
+namespace WorkerDispatcher.Batch
 {
     internal class BatchFactory : IBatchFactory
     {
         private readonly TimerQueueProvider _batchQueueProvider;
         private readonly IDispatcherPlugin _plugin;
-        private readonly IReadOnlyDictionary<Type, BatchConfig> _config;
+        private readonly BatchConfigProvider _config;
         private readonly QueueEvent<Type> _queueEvent;
         private readonly LocalQueueManager _localQueue;
         private readonly Dictionary<Type, MethodInfo> _cacheMethod = new Dictionary<Type, MethodInfo>();
@@ -20,7 +20,7 @@ namespace WorkerDispatcher.Extensions.Batch
 
         public BatchFactory(TimerQueueProvider batchQueueProvider,
             IDispatcherPlugin plugin,
-            IReadOnlyDictionary<Type, BatchConfig> config,
+            BatchConfigProvider config,
             QueueEvent<Type> queueEvent,
             LocalQueueManager queueManager)
         {
@@ -40,7 +40,7 @@ namespace WorkerDispatcher.Extensions.Batch
                 .Where(p => p.IsGenericMethod && p.Name == nameof(sender.Post))
                 .Single(p => p.GetParameters().Length == 3);
 
-            var batchToken = new BatchToken(_localQueue, _batchQueueProvider, _queueEvent, _manualResetEventSlim);
+            var batchToken = new BatchToken(_localQueue, _batchQueueProvider, _queueEvent, _manualResetEventSlim, _config);
 
             var cancellationToken = batchToken.CancellationToken;
 
@@ -81,7 +81,7 @@ namespace WorkerDispatcher.Extensions.Batch
             if (arr == null || arr.Length == 0)
                 return;
 
-            var configQueue = _config[type];
+            var configQueue = _config.Get(type);
 
             var worker = configQueue.Factory.DynamicInvoke();
 
@@ -99,7 +99,7 @@ namespace WorkerDispatcher.Extensions.Batch
         {
             try
             {
-                var queueFlush = _config.Where(p => p.Value.FlushOnStop);
+                var queueFlush = _config.GetAll().Where(p => p.Value.FlushOnStop);
 
                 foreach (var f in queueFlush)
                 {

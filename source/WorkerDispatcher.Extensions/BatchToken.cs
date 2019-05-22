@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace WorkerDispatcher.Extensions.Batch
+namespace WorkerDispatcher.Batch
 {
     internal class BatchToken : IBatchToken
     {
@@ -11,16 +11,22 @@ namespace WorkerDispatcher.Extensions.Batch
         private readonly TimerQueueProvider _timerQueueProvider;
         private readonly QueueEvent<Type> _queueEvent;
         private readonly ManualResetEventSlim _manualResetEventSlim;
+        private readonly BatchConfigProvider _batchConfig;
 
         public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
-        internal BatchToken(LocalQueueManager queue, TimerQueueProvider timeQueueProvider, QueueEvent<Type> queueEvent, ManualResetEventSlim manualResetEventSlim)
+        internal BatchToken(LocalQueueManager queue, 
+            TimerQueueProvider timeQueueProvider, 
+            QueueEvent<Type> queueEvent, 
+            ManualResetEventSlim manualResetEventSlim,
+            BatchConfigProvider batchConfig)
         {
             _cancellationTokenSource = new CancellationTokenSource();
             _queue = queue;
             _timerQueueProvider = timeQueueProvider;
             _queueEvent = queueEvent;
             _manualResetEventSlim = manualResetEventSlim;
+            _batchConfig = batchConfig;
         }
 
         public void Send<TData>(TData data)

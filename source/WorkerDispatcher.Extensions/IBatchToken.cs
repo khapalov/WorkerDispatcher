@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace WorkerDispatcher.Extensions.Batch
+namespace WorkerDispatcher.Batch
 {
     public interface IBatchToken : IBatchTokenSender, IDisposable
     {
