@@ -28,7 +28,7 @@ namespace WorkerDispatcher.Batch
                 throw new ArgumentException($"No registered type {typeof(TData)}");
             }
 
-            return _queue.Count;
+            return q.Count;
         }
 
         public bool HasQueued<TData>()

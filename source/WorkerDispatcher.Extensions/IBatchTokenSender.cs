@@ -2,7 +2,7 @@
 {
     public interface IBatchTokenSender
     {
-        void Send<TData>(TData data);
+        int Send<TData>(TData data);
 
         void Flush<TData>();
     }

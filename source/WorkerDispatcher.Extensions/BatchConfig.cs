@@ -10,6 +10,7 @@ namespace WorkerDispatcher.Batch
             MaxCount = 10;
             TimeLimit = TimeSpan.FromSeconds(30);
             FlushOnStop = true;
+            TriggerCount = 0;
         }
 
         public TimeSpan AwaitTimePeriod { get; internal set; }
@@ -21,5 +22,7 @@ namespace WorkerDispatcher.Batch
         public Delegate Factory { get; internal set; }
 
         public bool FlushOnStop { get; internal set; }
+
+        public int TriggerCount { get; internal set; }
     }
 }

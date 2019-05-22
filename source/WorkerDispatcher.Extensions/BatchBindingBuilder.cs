@@ -40,6 +40,12 @@ namespace WorkerDispatcher.Batch
             return this;
         }
 
+        public IBatchBindingBuilder<TData> TriggerCount(int count)
+        {
+            _configToType.TriggerCount = count;
+            return this;
+        }
+
         public void Bind(BatchFactoryDelegate<TData> factoryDelegate)
         {
             _configToType.Factory = factoryDelegate;

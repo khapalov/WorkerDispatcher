@@ -13,6 +13,8 @@ namespace WorkerDispatcher.Batch
 
         IBatchBindingBuilder<TData> FlushOnStop(bool flush);
 
+        IBatchBindingBuilder<TData> TriggerCount(int count);
+
         void Bind(BatchFactoryDelegate<TData> factoryDelegate);
 
         void Bind(Func<TData[], Task> action);

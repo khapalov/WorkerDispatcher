@@ -29,9 +29,24 @@ namespace WorkerDispatcher.Batch
             _batchConfig = batchConfig;
         }
 
-        public void Send<TData>(TData data)
+        public int Send<TData>(TData data)
         {
-            _queue.Enqueue(data);
+            var triggerCount = _batchConfig.Get<TData>().TriggerCount;
+
+            var queueCount = _queue.Enqueue(data);
+
+            if (triggerCount > 0)
+            {
+                var res = triggerCount - queueCount;
+
+                if (res <= 0)
+                {
+                    _queueEvent.AddEvent(typeof(TData));
+                    //Flush<TData>();
+                }
+            }
+
+            return queueCount;
         }
 
         public void Stop()
@@ -63,7 +78,7 @@ namespace WorkerDispatcher.Batch
         {
             if (_queue.HasQueued<TData>())
             {
-                _queueEvent.AddEvent(typeof(TData));
+                _queueEvent.AddEvent(typeof(TData), true);
             }
         }
     }
