@@ -14,7 +14,7 @@ namespace WorkerDispatcher.Batch
         private readonly IDispatcherPlugin _plugin;
         private readonly BatchConfigProvider _config;
         private readonly QueueEvent<Type> _queueEvent;
-        private readonly LocalQueueManager _localQueue;
+        private readonly LocalQueueProvider _localQueue;
         private readonly Dictionary<Type, MethodInfo> _cacheMethod = new Dictionary<Type, MethodInfo>();
         private readonly ManualResetEventSlim _manualResetEventSlim = new ManualResetEventSlim(false);
 
@@ -22,7 +22,7 @@ namespace WorkerDispatcher.Batch
             IDispatcherPlugin plugin,
             BatchConfigProvider config,
             QueueEvent<Type> queueEvent,
-            LocalQueueManager queueManager)
+            LocalQueueProvider queueManager)
         {
             _batchQueueProvider = batchQueueProvider;
             _plugin = plugin;

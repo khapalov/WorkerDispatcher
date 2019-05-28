@@ -14,7 +14,7 @@ namespace WorkerDispatcher.Batch
             _config = config;
         }
 
-        public LocalQueueManager Build()
+        public LocalQueueProvider Build()
         {
             var queue = new ConcurrentDictionary<Type, ConcurrentQueue<object>>();
             foreach (var c in _config.GetAll())
@@ -25,7 +25,7 @@ namespace WorkerDispatcher.Batch
                 }
             }
 
-            return new LocalQueueManager(queue, _config);
+            return new LocalQueueProvider(queue, _config);
         }
     }
 }

@@ -6,12 +6,12 @@ using System.Text;
 
 namespace WorkerDispatcher.Batch
 {
-    internal class LocalQueueManager
+    internal class LocalQueueProvider
     {
         private readonly ConcurrentDictionary<Type, ConcurrentQueue<object>> _queue;
         private readonly BatchConfigProvider _config;
 
-        public LocalQueueManager(ConcurrentDictionary<Type, ConcurrentQueue<object>> queue, BatchConfigProvider config)
+        public LocalQueueProvider(ConcurrentDictionary<Type, ConcurrentQueue<object>> queue, BatchConfigProvider config)
         {
             _queue = queue;
             _config = config;
@@ -33,18 +33,33 @@ namespace WorkerDispatcher.Batch
 
         public bool HasQueued<TData>()
         {
-            return _queue.ContainsKey(typeof(TData));
+            return CheckExistQueueData(typeof(TData));
+        }
+
+        public bool HasQueued(Type eventType)
+        {
+            return CheckExistQueueData(eventType);
+        }
+
+        private bool CheckExistQueueData(Type eventType)
+        {
+            if (_queue.TryGetValue(eventType, out ConcurrentQueue<object> queue))
+            {
+                return queue.Count > 0;
+            }
+
+            return false;
         }
 
         public Array Dequeue(Type type, int retreiveCount = 0)
         {
             Array resultArr = default(Array);
 
-            if (_queue.TryGetValue(type, out ConcurrentQueue<object> q))
+            if (_queue.TryGetValue(type, out ConcurrentQueue<object> queue))
             {
-                if (q.Any())
+                if (queue.Any())
                 {
-                    var count = q.Count;
+                    var count = queue.Count;
 
                     var configQueue = _config.Get(type);
 
@@ -59,7 +74,7 @@ namespace WorkerDispatcher.Batch
 
                     for (int i = 0; i < len; i++)
                     {
-                        if (!q.TryDequeue(out object res))
+                        if (!queue.TryDequeue(out object res))
                             break;
 
                         resultArr.SetValue(res, i);

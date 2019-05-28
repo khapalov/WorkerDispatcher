@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WorkerDispatcher.Extensions\WorkerDispatcher.Batch.csproj" />
     <ProjectReference Include="..\WorkerDispatcher\WorkerDispatcher.csproj" />
   </ItemGroup>
 

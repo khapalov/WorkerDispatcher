@@ -7,9 +7,12 @@ namespace WorkerDispatcher.Batch
     internal class QueueEvent<TData> : IDisposable
     {
         private readonly ConcurrentQueue<TData> _queue = new ConcurrentQueue<TData>();
-        private readonly ConcurrentDictionary<TData, DateTime> _latUpdateds = new ConcurrentDictionary<TData, DateTime>();
 
         private readonly AutoResetEvent _autoResetEvent = new AutoResetEvent(false);
+        private readonly ConcurrentHashSet<TData> _concurrentHashSet = new ConcurrentHashSet<TData>();
+
+        public QueueEvent()
+        { }
 
         public void AddEvent(TData data, bool flush = false)
         {
@@ -20,16 +23,8 @@ namespace WorkerDispatcher.Batch
             }
             else
             {
-                var isNew = !_latUpdateds.ContainsKey(data);
-
-                var upd = _latUpdateds.GetOrAdd(data, p => DateTime.Now);
-                var cur = DateTime.Now;
-
-                var delta = cur- upd;
-
-                if (isNew || delta.TotalMilliseconds > 1000)
+                if (_concurrentHashSet.Add(data))
                 {
-                    //Console.WriteLine($"Delta {delta.TotalMilliseconds}");
                     _queue.Enqueue(data);
                     _autoResetEvent.Set();
                 }
@@ -53,7 +48,7 @@ namespace WorkerDispatcher.Batch
                 _autoResetEvent.WaitOne();
 
                 return TryDequeue();
-            }          
+            }
         }
 
         public void Dispose()
@@ -66,10 +61,11 @@ namespace WorkerDispatcher.Batch
         {
             if (_queue.TryDequeue(out TData data))
             {
-                _latUpdateds.TryRemove(data, out _);
+                _concurrentHashSet.Remove(data);
+                return data;
             }
 
-            return data;
+            return default(TData);
         }
     }
 }

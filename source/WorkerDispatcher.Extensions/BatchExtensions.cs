@@ -12,16 +12,16 @@ namespace WorkerDispatcher.Batch
             var builder = new BatchQueueBuilder(config);
 
             action(builder);
+            
+            var batchConfigProvider = new BatchConfigProvider(config);
+
+            var queueProvider = new LocalQueueBuilder(batchConfigProvider).Build();
 
             var queueEvent = new QueueEvent<Type>();
 
-            var batchConfigProvider = new BatchConfigProvider(config);
+            var batchProvider = new TimerQueueProvider(batchConfigProvider, queueEvent, queueProvider);
 
-            var batchProvider = new TimerQueueProvider(batchConfigProvider, queueEvent);
-
-            var queueManager = new LocalQueueBuilder(batchConfigProvider).Build();
-
-            return new BatchFactory(batchProvider, dispatcherPlugin, batchConfigProvider, queueEvent, queueManager);
+            return new BatchFactory(batchProvider, dispatcherPlugin, batchConfigProvider, queueEvent, queueProvider);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace WorkerDispatcher.Batch
     internal class BatchToken : IBatchToken
     {
         private readonly CancellationTokenSource _cancellationTokenSource;
-        private readonly LocalQueueManager _queue;
+        private readonly LocalQueueProvider _queue;
         private readonly TimerQueueProvider _timerQueueProvider;
         private readonly QueueEvent<Type> _queueEvent;
         private readonly ManualResetEventSlim _manualResetEventSlim;
@@ -15,7 +15,7 @@ namespace WorkerDispatcher.Batch
 
         public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
-        internal BatchToken(LocalQueueManager queue, 
+        internal BatchToken(LocalQueueProvider queue, 
             TimerQueueProvider timeQueueProvider, 
             QueueEvent<Type> queueEvent, 
             ManualResetEventSlim manualResetEventSlim,
@@ -41,8 +41,7 @@ namespace WorkerDispatcher.Batch
 
                 if (res <= 0)
                 {
-                    _queueEvent.AddEvent(typeof(TData));
-                    //Flush<TData>();
+                    _queueEvent.AddEvent(typeof(TData));                    
                 }
             }
 

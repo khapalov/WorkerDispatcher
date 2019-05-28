@@ -8,18 +8,20 @@ namespace WorkerDispatcher.Batch
         private readonly Timer _timer;
         private readonly QueueEvent<Type> _queue;
         private readonly Type _type;
+        private readonly LocalQueueProvider _localQueueProvider;
 
-        public ScheduleTimer(TimeSpan period, QueueEvent<Type> queue, Type type, bool start = false)
+        public ScheduleTimer(TimeSpan period, QueueEvent<Type> queue, Type type,LocalQueueProvider localQueueProvider,  bool start = false)
         {
             _timer = new Timer(period.TotalMilliseconds)
             {
                 Enabled = start,
                 AutoReset = true
             };
-            
+
             _timer.Elapsed += TimerElapsed;
             _queue = queue;
             _type = type;
+            _localQueueProvider = localQueueProvider;
         }
 
         public void Start()
@@ -28,13 +30,16 @@ namespace WorkerDispatcher.Batch
         }
 
         public void Stop()
-        {            
+        {
             _timer.Stop();
         }
 
         private void TimerElapsed(object sender, ElapsedEventArgs e)
         {
-            _queue.AddEvent(_type);            
+            if (_localQueueProvider.HasQueued(_type))
+            {
+                _queue.AddEvent(_type);
+            }
         }
 
         #region IDisposable Support

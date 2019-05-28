@@ -19,20 +19,20 @@ namespace BulkApp
 
             var bathToken = dispatcher.Plugin.Batch(p =>
             {
-                //p.For<int>()
-                //    .MaxCount(15)
-                //    .Period(TimeSpan.FromSeconds(1.5))
-                //    .FlushOnStop(false)
-                //    .Bind(() =>
-                //    {
-                //        return new BatchDataWorkerInt();
-                //    });
+                p.For<int>()
+                    .MaxCount(15)
+                    .Period(TimeSpan.FromSeconds(1.5))
+                    .FlushOnStop(false)
+                    .Bind(() =>
+                    {
+                        return new BatchDataWorkerInt();
+                    });
 
                 p.For<string>()
                     .MaxCount(10)
-                    .Period(TimeSpan.FromMinutes(0.5))
-                    .TriggerCount(2)
-                    .FlushOnStop(true)
+                    .Period(TimeSpan.FromSeconds(2))
+                    .TriggerCount(5)
+                    .FlushOnStop(true)                    
                     .Bind(data =>
                     {
                         var str = string.Join(", ", data.Select(s => s.ToString()));
@@ -42,26 +42,26 @@ namespace BulkApp
 
             }).Start();
 
-            //Task.Factory.StartNew(async () =>
-            //{
-            //    for (var i = 0; i < 60; i++)
-            //    {
-            //        if ((i % 10) == 0)
-            //        {
-            //            await Task.Delay(200);
-            //        }
+            Task.Factory.StartNew(async () =>
+            {
+                for (var i = 0; i < 60; i++)
+                {
+                    if ((i % 10) == 0)
+                    {
+                        await Task.Delay(200);
+                    }
 
-            //        bathToken.Send(i);
-            //    }
-            //});
+                    bathToken.Send(i);
+                }
+            });
 
             Task.Factory.StartNew(async () =>
             {
-                for (var i = 0; i < 50; i++)
+                for (var i = 1; i < 100; i++)
                 {
-                    if ((i % 5) == 0)
+                    if ((i % 2) == 0)
                     {
-                        await Task.Delay(1000);
+                        await Task.Delay(100);
                     }
 
                     bathToken.Send($"hello {i}");
