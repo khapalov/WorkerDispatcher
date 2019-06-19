@@ -17,7 +17,7 @@ namespace WorkerDispatcher.Batch
 
             var queueProvider = new LocalQueueBuilder(batchConfigProvider).Build();
 
-            var queueEvent = new QueueEvent<Type>();
+            var queueEvent = new QueueEvent<Type>(batchConfigProvider);
 
             var batchProvider = new TimerQueueProvider(batchConfigProvider, queueEvent, queueProvider);
 

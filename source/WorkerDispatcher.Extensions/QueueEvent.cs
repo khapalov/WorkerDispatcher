@@ -6,16 +6,20 @@ namespace WorkerDispatcher.Batch
 {
     internal class QueueEvent<TData> : IDisposable
     {
-        private readonly ConcurrentQueue<TData> _queue = new ConcurrentQueue<TData>();
+        private readonly ConcurrentQueue<object> _queue = new ConcurrentQueue<object>();
+        private readonly ConcurrentDictionary<object, DateTime> _lastUpdateds = new ConcurrentDictionary<object, DateTime>();
 
         private readonly AutoResetEvent _autoResetEvent = new AutoResetEvent(false);
-        private readonly ConcurrentHashSet<TData> _concurrentHashSet = new ConcurrentHashSet<TData>();
+        private readonly BatchConfigProvider _config;
 
-        public QueueEvent()
-        { }
-
-        public void AddEvent(TData data, bool flush = false)
+        public QueueEvent(BatchConfigProvider config)
         {
+            _config = config;
+        }
+        public void AddEvent(object data, bool flush = false)
+        {
+            var type = (Type)data;
+
             if (flush)
             {
                 _queue.Enqueue(data);
@@ -23,8 +27,23 @@ namespace WorkerDispatcher.Batch
             }
             else
             {
-                if (_concurrentHashSet.Add(data))
+                var cur = DateTime.Now;
+
+                var upd = _lastUpdateds.GetOrAdd(type, p => cur);
+                
+                var delta = cur - upd;
+
+                var isNew = delta == TimeSpan.Zero;
+
+                var cfg = _config.Get(type);
+
+                if (isNew || delta > cfg.AwaitTimePeriod)
                 {
+                    if (!isNew)
+                    {
+                        _lastUpdateds.TryRemove(type, out _);
+                    }
+
                     _queue.Enqueue(data);
                     _autoResetEvent.Set();
                 }
@@ -59,10 +78,9 @@ namespace WorkerDispatcher.Batch
 
         private TData TryDequeue()
         {
-            if (_queue.TryDequeue(out TData data))
+            if (_queue.TryDequeue(out object data))
             {
-                _concurrentHashSet.Remove(data);
-                return data;
+                return (TData)data;
             }
 
             return default(TData);

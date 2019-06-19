@@ -41,7 +41,7 @@ namespace WorkerDispatcher.Batch
 
                 if (res <= 0)
                 {
-                    _queueEvent.AddEvent(typeof(TData));                    
+                    _queueEvent.AddEvent(data.GetType());                    
                 }
             }
 

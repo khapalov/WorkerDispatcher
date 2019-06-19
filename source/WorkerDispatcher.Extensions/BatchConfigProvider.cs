@@ -25,6 +25,12 @@ namespace WorkerDispatcher.Batch
                 : throw new ArgumentException($"Unknown type {type}");
         }
 
+        public BatchConfig Get(object data)
+        {            
+            var type = (Type)data;
+            return Get(type);
+        }
+
         public BatchConfig Get<TType>()
         {
             return Get(typeof(TType));

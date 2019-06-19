@@ -33,29 +33,28 @@ namespace UnitTests
     public class if_count_batch_execute : BatchFixture
     {
         private IBatchToken _batchToken;
-        private int _maxCount = 10;
-             
+        private const int MAX_COUNT_ITEMS = 10;
+
         [SetUp]
         public void Initalize()
         {
             DispatcherToken = Factory.Start(new ActionDispatcherSettings
             {
-                Timeout = TimeSpan.FromSeconds(1000)
+                Timeout = TimeSpan.FromSeconds(100)
             });
 
             _batchToken = DispatcherToken.Plugin.Batch(p =>
             {
                 p.For<SomeBatchData>()
-                    .MaxCount(_maxCount)
+                    .MaxCount(MAX_COUNT_ITEMS)
                     .TriggerCount(1)
+                    .FlushOnStop(true)
                     .Bind(() => BatchActionInvoker.Object);
             }).Start();
         }
 
-        [TestCase(1)]
-        [TestCase(4)]
-        [TestCase(5)]
-        [TestCase(10)]
+        [Order(1)]        
+        [TestCase(MAX_COUNT_ITEMS)]
         public void should_be_invoke_batch_count_success(int count)
         {
             BatchActionInvoker.Invocations.Clear();
@@ -73,15 +72,15 @@ namespace UnitTests
             BatchActionInvoker.Verify(p => p.Invoke(It.Is<SomeBatchData[]>(x => x.Length == count), It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        [Test]
+        [Order(2)]
+        [Test]        
         public void execute_batch_count_exceeded()
         {
-            var exceeded = 2;
-            var count = _maxCount * exceeded;
-                
+            var countExceeded = MAX_COUNT_ITEMS * +1;
+
             BatchActionInvoker.Invocations.Clear();
 
-            Enumerable.Range(0, count).ToList().ForEach(p =>
+            Enumerable.Range(0, countExceeded).ToList().ForEach(p =>
             {
                 var data = new SomeBatchData();
                 _batchToken.Send(data);
@@ -91,7 +90,7 @@ namespace UnitTests
 
             DispatcherToken.WaitCompleted();
 
-            BatchActionInvoker.Verify(p => p.Invoke(It.Is<SomeBatchData[]>(x => x.Length == _maxCount), It.IsAny<CancellationToken>()), Times.Exactly(exceeded));
+            BatchActionInvoker.Verify(p => p.Invoke(It.Is<SomeBatchData[]>(x => x.Length == MAX_COUNT_ITEMS), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 
