@@ -31,8 +31,8 @@ namespace BulkApp
 
                 p.For<string>()
                     .MaxCount(10)
-                    .Period(TimeSpan.FromSeconds(2))
-                    .TriggerCount(5)
+                    .Period(TimeSpan.FromSeconds(1))
+                    //.TriggerCount(5)
                     .FlushOnStop(true)
                     .Bind(data =>
                     {
@@ -43,18 +43,18 @@ namespace BulkApp
 
             }).Start();
 
-            Task.Factory.StartNew(() =>
-            {
-                for (var i = 0; i < 50; i++)
-                {
-                    if ((i % 10) == 0)
-                    {
-                        //await Task.Delay(200);
-                    }
+            //Task.Factory.StartNew(() =>
+            //{
+            //    for (var i = 0; i < 50; i++)
+            //    {
+            //        if ((i % 10) == 0)
+            //        {
+            //            //await Task.Delay(200);
+            //        }
 
-                    bathToken.Send(i);
-                }
-            });
+            //        bathToken.Send(i);
+            //    }
+            //});
 
             Task.Factory.StartNew(async () =>
             {
@@ -62,7 +62,7 @@ namespace BulkApp
                 {
                     if ((i % 2) == 0)
                     {
-                        await Task.Delay(100);
+                        //await Task.Delay(100);
                     }
 
                     bathToken.Send($"hello {i}");

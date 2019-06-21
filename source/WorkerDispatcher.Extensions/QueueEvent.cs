@@ -39,13 +39,23 @@ namespace WorkerDispatcher.Batch
 
                 if (isNew || delta > cfg.AwaitTimePeriod)
                 {
-                    if (!isNew)
+                    if (isNew)
                     {
+                        _queue.Enqueue(data);
+                        _autoResetEvent.Set();
+                    }
+                    else
+                    {                        
+                        delta = DateTime.Now - upd;
+
+                        if (delta <= cfg.AwaitTimePeriod)
+                        {
+                            _queue.Enqueue(data);
+                            _autoResetEvent.Set();
+                        }
+
                         _lastUpdateds.TryRemove(type, out _);
                     }
-
-                    _queue.Enqueue(data);
-                    _autoResetEvent.Set();
                 }
             }
         }

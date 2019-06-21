@@ -64,7 +64,8 @@ namespace WorkerDispatcher.Batch
                     }
                 }
 
-            }, TaskCreationOptions.LongRunning).ContinueWith(p => Flushing(methodPost), TaskContinuationOptions.OnlyOnRanToCompletion);
+                Flushing(methodPost);
+            });
 
             _batchQueueProvider.StartTimers();
 
