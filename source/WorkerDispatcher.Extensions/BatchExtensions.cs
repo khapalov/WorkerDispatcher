@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using WorkerDispatcher.Batch.QueueEvent;
 
 namespace WorkerDispatcher.Batch
 {
@@ -12,12 +14,17 @@ namespace WorkerDispatcher.Batch
             var builder = new BatchQueueBuilder(config);
 
             action(builder);
-            
+
             var batchConfigProvider = new BatchConfigProvider(config);
 
             var queueProvider = new LocalQueueBuilder(batchConfigProvider).Build();
 
-            var queueEvent = new QueueEvent<Type>(batchConfigProvider);
+            IQueueEvent queueEvent = new QueueEventBasic();
+
+            if (batchConfigProvider.Find(p => p.Value.TriggerCount > 0).Any())
+            {
+                queueEvent = new QueueEventUnique(batchConfigProvider, queueEvent);
+            }
 
             var batchProvider = new TimerQueueProvider(batchConfigProvider, queueEvent, queueProvider);
 

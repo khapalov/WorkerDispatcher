@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Timers;
+using WorkerDispatcher.Batch.QueueEvent;
 
 namespace WorkerDispatcher.Batch
 {
     internal class ScheduleTimer : IScheduleTimer
     {
         private readonly Timer _timer;
-        private readonly QueueEvent<Type> _queue;
+        private readonly IQueueEvent _queue;
         private readonly Type _type;
         private readonly LocalQueueProvider _localQueueProvider;
 
-        public ScheduleTimer(TimeSpan period, QueueEvent<Type> queue, Type type,LocalQueueProvider localQueueProvider,  bool start = false)
+        public ScheduleTimer(TimeSpan period, IQueueEvent queueEvent, Type type,LocalQueueProvider localQueueProvider,  bool start = false)
         {
             _timer = new Timer(period.TotalMilliseconds)
             {
@@ -19,7 +20,7 @@ namespace WorkerDispatcher.Batch
             };
 
             _timer.Elapsed += TimerElapsed;
-            _queue = queue;
+            _queue = queueEvent;
             _type = type;
             _localQueueProvider = localQueueProvider;
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using WorkerDispatcher.Batch.QueueEvent;
 
 namespace WorkerDispatcher.Batch
 {
@@ -9,15 +10,15 @@ namespace WorkerDispatcher.Batch
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly LocalQueueProvider _queue;
         private readonly TimerQueueProvider _timerQueueProvider;
-        private readonly QueueEvent<Type> _queueEvent;
+        private readonly IQueueEvent _queueEvent;
         private readonly ManualResetEventSlim _manualResetEventSlim;
         private readonly BatchConfigProvider _batchConfig;
 
         public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
         internal BatchToken(LocalQueueProvider queue, 
-            TimerQueueProvider timeQueueProvider, 
-            QueueEvent<Type> queueEvent, 
+            TimerQueueProvider timeQueueProvider,
+            IQueueEvent queueEvent, 
             ManualResetEventSlim manualResetEventSlim,
             BatchConfigProvider batchConfig)
         {

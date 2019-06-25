@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace WorkerDispatcher.Batch
@@ -39,6 +40,11 @@ namespace WorkerDispatcher.Batch
         public IEnumerable<KeyValuePair<Type, BatchConfig>> GetAll()
         {
             return _configBatches;
+        }
+
+        public IEnumerable<KeyValuePair<Type, BatchConfig>> Find(Func<KeyValuePair<Type, BatchConfig>, bool> predicate)
+        {
+            return _configBatches.Where(predicate);
         }
     }
 }

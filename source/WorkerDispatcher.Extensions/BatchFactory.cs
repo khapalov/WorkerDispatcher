@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using WorkerDispatcher.Batch.QueueEvent;
 
 namespace WorkerDispatcher.Batch
 {
@@ -13,7 +14,7 @@ namespace WorkerDispatcher.Batch
         private readonly TimerQueueProvider _batchQueueProvider;
         private readonly IDispatcherPlugin _plugin;
         private readonly BatchConfigProvider _config;
-        private readonly QueueEvent<Type> _queueEvent;
+        private readonly IQueueEvent _queueEvent;
         private readonly LocalQueueProvider _localQueue;
         private readonly Dictionary<Type, MethodInfo> _cacheMethod = new Dictionary<Type, MethodInfo>();
         private readonly ManualResetEventSlim _manualResetEventSlim = new ManualResetEventSlim(false);
@@ -21,7 +22,7 @@ namespace WorkerDispatcher.Batch
         public BatchFactory(TimerQueueProvider batchQueueProvider,
             IDispatcherPlugin plugin,
             BatchConfigProvider config,
-            QueueEvent<Type> queueEvent,
+            IQueueEvent queueEvent,
             LocalQueueProvider queueManager)
         {
             _batchQueueProvider = batchQueueProvider;
@@ -72,9 +73,11 @@ namespace WorkerDispatcher.Batch
             return batchToken;
         }
 
-        private void PostWorker(Type type, MethodInfo methodPost, int retreiveCount = 0)
+        private void PostWorker(object typeObj, MethodInfo methodPost, int retreiveCount = 0)
         {
             var sender = _plugin.Sender;
+
+            var type = (Type)typeObj;
 
             var arr = _localQueue.Dequeue(type, retreiveCount);
 
