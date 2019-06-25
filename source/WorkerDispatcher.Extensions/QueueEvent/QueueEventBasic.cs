@@ -11,10 +11,8 @@ namespace WorkerDispatcher.Batch.QueueEvent
         private readonly ConcurrentQueue<object> _queue = new ConcurrentQueue<object>();
         private readonly AutoResetEvent _autoResetEvent = new AutoResetEvent(false);
 
-        public bool AddEvent(object data, bool flush = false)
+        public bool AddEvent(Type data, bool flush = false)
         {
-            var type = (Type)data;
-
             _queue.Enqueue(data);
             _autoResetEvent.Set();
 

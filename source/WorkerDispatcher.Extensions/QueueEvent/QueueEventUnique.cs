@@ -5,9 +5,8 @@ using System.Threading;
 namespace WorkerDispatcher.Batch.QueueEvent
 {
     internal class QueueEventUnique : IQueueEvent
-    {
-        private readonly ConcurrentQueue<object> _queue = new ConcurrentQueue<object>();
-        private readonly ConcurrentDictionary<object, DateTime> _lastUpdateds = new ConcurrentDictionary<object, DateTime>();
+    {        
+        private readonly ConcurrentDictionary<Type, DateTime> _lastUpdateds = new ConcurrentDictionary<Type, DateTime>();
 
         private readonly BatchConfigProvider _config;
         private readonly IQueueEvent _queueEvent;
@@ -18,10 +17,8 @@ namespace WorkerDispatcher.Batch.QueueEvent
             _queueEvent = queueEvent;
         }
 
-        public bool AddEvent(object data, bool flush = false)
-        {
-            var type = (Type)data;
-
+        public bool AddEvent(Type data, bool flush = false)
+        {            
             var sendEvent = false;
 
             if (flush)
@@ -30,7 +27,7 @@ namespace WorkerDispatcher.Batch.QueueEvent
             }
             else
             {
-                var cfg = _config.Get(type);
+                var cfg = _config.Get(data);
 
                 if (cfg.TriggerCount <= 0)
                 {
@@ -40,7 +37,7 @@ namespace WorkerDispatcher.Batch.QueueEvent
                 {
                     var cur = DateTime.Now;
 
-                    var upd = _lastUpdateds.GetOrAdd(type, p => cur);
+                    var upd = _lastUpdateds.GetOrAdd(data, p => cur);
 
                     var delta = cur - upd;
 
@@ -61,7 +58,7 @@ namespace WorkerDispatcher.Batch.QueueEvent
                                 sendEvent = _queueEvent.AddEvent(data);
                             }
 
-                            _lastUpdateds.TryRemove(type, out _);
+                            _lastUpdateds.TryRemove(data, out _);
                         }
                     }
                 }

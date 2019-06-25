@@ -11,7 +11,7 @@ namespace WorkerDispatcher.Batch
         private readonly LocalQueueProvider _queue;
         private readonly TimerQueueProvider _timerQueueProvider;
         private readonly IQueueEvent _queueEvent;
-        private readonly ManualResetEventSlim _manualResetEventSlim;
+        private readonly ManualResetEventSlim _triggerAllCompleted;
         private readonly BatchConfigProvider _batchConfig;
 
         public CancellationToken CancellationToken => _cancellationTokenSource.Token;
@@ -26,7 +26,7 @@ namespace WorkerDispatcher.Batch
             _queue = queue;
             _timerQueueProvider = timeQueueProvider;
             _queueEvent = queueEvent;
-            _manualResetEventSlim = manualResetEventSlim;
+            _triggerAllCompleted = manualResetEventSlim;
             _batchConfig = batchConfig;
         }
 
@@ -59,11 +59,11 @@ namespace WorkerDispatcher.Batch
             _cancellationTokenSource.Cancel();
             if (awaitTime == TimeSpan.Zero)
             {
-                _manualResetEventSlim.Wait();
+                _triggerAllCompleted.Wait();
             }
             else
             {
-                _manualResetEventSlim.Wait(awaitTime);
+                _triggerAllCompleted.Wait(awaitTime);
             }
         }
 

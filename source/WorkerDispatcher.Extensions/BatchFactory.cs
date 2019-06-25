@@ -17,7 +17,7 @@ namespace WorkerDispatcher.Batch
         private readonly IQueueEvent _queueEvent;
         private readonly LocalQueueProvider _localQueue;
         private readonly Dictionary<Type, MethodInfo> _cacheMethod = new Dictionary<Type, MethodInfo>();
-        private readonly ManualResetEventSlim _manualResetEventSlim = new ManualResetEventSlim(false);
+        private readonly ManualResetEventSlim _triggerAllCompleted = new ManualResetEventSlim(false);
 
         public BatchFactory(TimerQueueProvider batchQueueProvider,
             IDispatcherPlugin plugin,
@@ -41,7 +41,7 @@ namespace WorkerDispatcher.Batch
                 .Where(p => p.IsGenericMethod && p.Name == nameof(sender.Post))
                 .Single(p => p.GetParameters().Length == 3);
 
-            var batchToken = new BatchToken(_localQueue, _batchQueueProvider, _queueEvent, _manualResetEventSlim, _config);
+            var batchToken = new BatchToken(_localQueue, _batchQueueProvider, _queueEvent, _triggerAllCompleted, _config);
 
             var cancellationToken = batchToken.CancellationToken;
 
@@ -115,10 +115,10 @@ namespace WorkerDispatcher.Batch
             }
             finally
             {
-                _manualResetEventSlim.Set();
+                _triggerAllCompleted.Set();
             }
 
-            _manualResetEventSlim.Dispose();
+            _triggerAllCompleted.Dispose();
         }
     }
 }
