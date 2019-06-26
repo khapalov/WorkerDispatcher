@@ -76,7 +76,7 @@ namespace UnitTests
         [Test]        
         public void execute_batch_count_exceeded()
         {
-            var countExceeded = MAX_COUNT_ITEMS * +1;
+            var countExceeded = MAX_COUNT_ITEMS + 1;
 
             BatchActionInvoker.Invocations.Clear();
 
