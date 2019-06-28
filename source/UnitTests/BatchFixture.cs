@@ -66,6 +66,7 @@ namespace UnitTests
             });
 
             _batchToken.Stop();
+            _batchToken.Dispose();
 
             DispatcherToken.WaitCompleted();
 
@@ -87,6 +88,7 @@ namespace UnitTests
             });
 
             _batchToken.Stop();
+            _batchToken.Dispose();
 
             DispatcherToken.WaitCompleted();
 
