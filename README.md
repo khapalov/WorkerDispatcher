@@ -2,7 +2,11 @@
 Easy way to run background worker with various mode
 
 ## How to install
+
 Install-Package WorkerDispatcher
+
+<strong>Batch extension</strong><br/>
+Install-Package WorkerDispatcher.Batch
 
 ## How to use
 Dispatcher support three work mode Parallel,Sequenced,ParallelLimit<br/>
@@ -40,6 +44,67 @@ dispathcerToken.Post(new MyDataWorker(), new MyTData(), TimeSpan.FromSecond(10))
 
 //send inline post
 dispatcherToken.Post(ct => Task.Delay(10000, ct));
+```
+### Use Batch
+if you need to work with bach data, easy way add package WorkerDispatcher.Batch, and see example
+
+```csharp
+static void Main(string[] args)
+{
+    var factory = new ActionDispatcherFactory();
+    var dispatcher = factory.Start();
+    
+    var bathToken = dispatcher.Plugin.Batch(p =>
+    {
+        p.For<SomeClass>()            
+            //Max batch count
+            .MaxCount(15)
+            //Period afer 10 seccond, call IBatchActionInvoker
+            .Period(TimeSpan.FromSeconds(10))
+            //if 5 and more item added, call IBatchActionInvoker
+            .TriggerCount(5)
+            //If call stop app (bathToken.Stop()) true call IBatchActionInvoker and pass other items, else nothing
+            .FlushOnStop(false)
+            .Bind(() =>
+            {
+                return new BatchDataWorker();
+            });   
+    }).Start();
+
+    //batchToken need save, for send batch data
+    bathToken.Send(new SomeClass(1));
+    bathToken.Send(new SomeClass(2));
+    bathToken.Send(new SomeClass(3));
+
+    Console.ReadKey();
+    bathToken.Stop();
+    bathToken.Dispose();
+}
+            
+class BatchDataWorker : IBatchActionInvoker<SomeClass>
+{
+    public Task<object> Invoke(SomeClass[] data, CancellationToken token)
+    {
+        foreach (var d in data)
+        {
+            Console.WriteLine(d);
+        }        
+        return Task.FromResult(new object());    
+    }
+}
+class SomeClass
+{
+    private readonly int _data;
+    
+    public SomeClass(int data)
+    {
+        _data = data;
+    }
+    public override string ToString()
+    {
+        return _data.ToString();
+    }
+}
 ```
 
 ### Run chain workers
