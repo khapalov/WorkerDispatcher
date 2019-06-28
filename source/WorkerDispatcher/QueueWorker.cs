@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace WorkerDispatcher
 {
-	internal class QueueWorker : IQueueWorker
+    internal class QueueWorker : IQueueWorker
 	{
 		private readonly QueueBlocked<IActionInvoker> _queue;
 		private readonly ManualResetEvent _state = new ManualResetEvent(false);

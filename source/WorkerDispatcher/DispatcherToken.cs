@@ -1,6 +1,5 @@
 ﻿//#define TRACE_STOP
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using WorkerDispatcher.Workers;
@@ -14,17 +13,19 @@ namespace WorkerDispatcher
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly ActionDispatcherSettings _actionDispatcherSettings;
         private readonly ICounterBlocked _chainCounter;
+        private readonly IWorkerHandler _workerHandler;
 
         internal DispatcherToken(ICounterBlocked counterProcess,
             IQueueWorker queueWorker,
             ActionDispatcherSettings actionDispatcherSettings,
             CancellationTokenSource cancellationTokenSource,
-            ICounterBlocked chainCounterBlocked)
+            ICounterBlocked chainCounterBlocked,
+            IWorkerHandler workerHandler)
         {
             _processCount = counterProcess;
 
             _chainCounter = chainCounterBlocked;
-
+            _workerHandler = workerHandler;
             _queueWorker = queueWorker;
 
             _cancellationTokenSource = cancellationTokenSource;
@@ -37,6 +38,14 @@ namespace WorkerDispatcher
         public int ProcessLimit => _actionDispatcherSettings.PrefetchCount;
 
         public int QueueProcessCount => _queueWorker.Count;
+
+        public IDispatcherPlugin Plugin
+        {
+            get
+            {
+                return new DefaultDispathcerPlugin(this, _workerHandler);
+            }
+        }
 
         public void Post(IActionInvoker actionInvoker)
         {

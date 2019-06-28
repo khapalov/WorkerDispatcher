@@ -7,7 +7,7 @@
     <PackageProjectUrl>https://github.com/khapalov/WorkerDispatcher</PackageProjectUrl>
     <RepositoryUrl>https://github.com/khapalov/WorkerDispatcher</RepositoryUrl>
     <PackageTags>worker dispatcher async background</PackageTags>
-    <Version>2.3.0</Version>
+    <Version>2.4.0</Version>
     <Description>Easy way to run background worker with various mode</Description>
     <RepositoryType>GitHub</RepositoryType>
     <PackageReleaseNotes>Added chain workers, easy way to execute chain worker and wait total result
