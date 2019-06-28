@@ -13,7 +13,7 @@ namespace BulkApp
         {
             var handler = new Workerhandler();
 
-            var factory = new ActionDispatcherFactory(handler);
+            var factory = new ActionDispatcherFactory();
 
             var dispatcher = factory.Start();
 

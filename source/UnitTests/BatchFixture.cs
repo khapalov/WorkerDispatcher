@@ -47,13 +47,13 @@ namespace UnitTests
             {
                 p.For<SomeBatchData>()
                     .MaxCount(MAX_COUNT_ITEMS)
-                    .TriggerCount(1)
+                    .TriggerCount(MAX_COUNT_ITEMS)
                     .FlushOnStop(true)
                     .Bind(() => BatchActionInvoker.Object);
             }).Start();
         }
 
-        [Order(1)]        
+        [Order(1)]
         [TestCase(MAX_COUNT_ITEMS)]
         public void should_be_invoke_batch_count_success(int count)
         {
@@ -73,7 +73,7 @@ namespace UnitTests
         }
 
         [Order(2)]
-        [Test]        
+        [Test]
         public void execute_batch_count_exceeded()
         {
             var countExceeded = MAX_COUNT_ITEMS + 1;
