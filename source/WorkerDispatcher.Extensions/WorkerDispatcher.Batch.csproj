@@ -13,7 +13,15 @@
     <PackageTags>async thread bulk batch background</PackageTags>
     <PackageReleaseNotes>Batch extension for WorkerDispatcher</PackageReleaseNotes>
     <Version>2.4.0</Version>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>../../build/Debug</OutputPath>
